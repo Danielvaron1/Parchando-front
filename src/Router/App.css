@@ -1,0 +1,39 @@
+.App {
+  text-align: center;
+}
+.layout {
+   display: flex;
+   flex-direction: column;
+   height: 100vh;
+
+   justify-content: center;
+   align-items: center;
+ }
+
+.item {
+  transition: flex-basis 1s;
+}
+
+.item-1 {
+  flex-basis: 100%;
+  animation: shrink 1s forwards;
+  animation-delay: 1s;
+}
+
+.item-2 {
+  flex-basis: 0;
+  animation: grow 1s forwards;
+  animation-delay: 1s;
+}
+
+@keyframes shrink {
+  to {
+    flex-basis: 30%;
+  }
+}
+
+@keyframes grow {
+  to {
+    flex-basis: 70%;
+  }
+}

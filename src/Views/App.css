@@ -1,0 +1,40 @@
+.App {
+  text-align: center;
+}
+
+.layout {
+   display: flex;
+   flex-direction: column;
+   height: 100vh;
+
+   justify-content: center;
+   align-items: center;
+ }
+
+.item {
+  transition: flex-basis 1s; /* agrega una transición de 1 segundo */
+}
+
+.item-1 {
+  flex-basis: 100%; /* ocupa toda la pantalla al principio */
+  animation: shrink 1s forwards; /* agrega la animación de reducir tamaño */
+  animation-delay: 1s; /* espera 1 segundo antes de iniciar la animación */
+}
+
+.item-2 {
+  flex-basis: 0; /* ocupa 0 espacio al principio */
+  animation: grow 1s forwards; /* agrega la animación de crecer */
+  animation-delay: 1s; /* espera 1 segundo antes de iniciar la animación */
+}
+
+@keyframes shrink {
+  to {
+    flex-basis: 30%; /* reduce el tamaño del item 1 a la mitad */
+  }
+}
+
+@keyframes grow {
+  to {
+    flex-basis: 70%; /* aumenta el tamaño del item 2 a la mitad */
+  }
+}

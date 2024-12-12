@@ -1,0 +1,132 @@
+.form-container {
+    display: none;
+    /* Ajusta la posición y el tamaño del contenedor */
+    position: relative;
+    width: 80%; /* ajusta el ancho del contenedor */
+    margin: 40px auto; /* agrega un margen superior e inferior y centra el contenedor */
+    padding: 0 !important;
+    border-radius: 10px; /* agrega un borde redondeado */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1); /* agrega una sombra leve */
+    transition: all 0.5s ease-in-out; /* agrega una transición suave */
+    height: 0; /* inicialmente, el formulario no se muestra */
+    overflow: hidden;
+}
+
+.form-container.show {
+    height: auto; /* ajusta la altura del formulario para que se muestre completo */
+    padding: 0px;
+    /* Ajusta la visibilidad del contenedor cuando se muestra */
+    display: block;
+    animation: form-size-change 2s ease-out;
+}
+
+.form-label {
+    color: #fff !important;
+}
+
+.form-input {
+    --nextui-default-foreground: #fff;
+}
+
+:root, .dark, [data-theme="dark"] {
+    color-scheme: dark;
+}
+
+
+
+@keyframes form-size-change {
+    0% {
+        height: 0;
+    }
+    100% {
+        height: auto;
+    }
+}
+
+.layout-registro {
+    width: 100%;
+
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.arrow{
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: #9013FE;
+    width: 100px;
+    height: 100px;
+}
+
+.arrow:hover{
+    cursor: pointer;
+}
+
+/* Estilo para pantallas pequeñas (menos de 768px) */
+@media (max-width: 768px) {
+    .layout-registro {
+        grid-template-columns: 1fr; /* Una sola columna */
+        grid-template-rows: 1fr;
+    }
+    .form-container{
+        margin: 0 !important;
+    }
+    .arrow{
+        width: 50px;
+        height: 50px;
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .city-grid {
+        grid-template-columns: repeat(2, 1fr); /* 4 columnas en desktop */
+    }
+}
+
+.form-question h2 {
+    font-size: max(2vw,1rem);
+    color: white;
+}
+
+@media (min-width: 769px) {
+    .div1 { grid-area: 1 / 1 / 2 / 2; }
+    .div2 { grid-area: 2 / 1 / 3 / 2; }
+    .div3 { grid-area: 3 / 1 / 4 / 2; }
+    .div4 { grid-area: 1 / 2 / 2 / 3; }
+    .div5 { grid-area: 2 / 2 / 3 / 3; }
+    .div6 { grid-area: 3 / 2 / 4 / 3; }
+
+    .city-grid {
+        grid-template-columns: repeat(4, 1fr); /* 4 columnas en desktop */
+    }
+}
+
+.city-grid {
+    display: grid;
+    gap: 10px;
+    width: 100%;
+}
+
+.city-button {
+    padding: 10px;
+    background-color: #d0d0d0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+}
+
+.city-button:hover {
+    background-color: #9013FE;
+    color: white;
+}
+
+.city-button.selected {
+    background-color: #9013FE;
+    color: white;
+}

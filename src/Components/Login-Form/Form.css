@@ -1,0 +1,46 @@
+.form-container {
+    display: none;
+    /* Ajusta la posición y el tamaño del contenedor */
+    position: relative;
+    width: 80%; /* ajusta el ancho del contenedor */
+    margin: 40px auto; /* agrega un margen superior e inferior y centra el contenedor */
+    padding: 20px; /* agrega un padding interior */
+    border-radius: 10px; /* agrega un borde redondeado */
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1); /* agrega una sombra leve */
+    transition: all 0.5s ease-in-out; /* agrega una transición suave */
+    height: 0; /* inicialmente, el formulario no se muestra */
+    overflow: hidden;
+}
+
+.form-container.show {
+    height: auto; /* ajusta la altura del formulario para que se muestre completo */
+    padding: 20px;
+    /* Ajusta la visibilidad del contenedor cuando se muestra */
+    display: block;
+    animation: form-size-change 2s ease-out;
+}
+
+@keyframes form-size-change {
+    0% {
+        height: 0;
+    }
+    100% {
+        height: auto;
+    }
+}
+
+.form-label {
+    color: #fff !important;
+}
+
+.form-input {
+    --nextui-default-foreground: #fff;
+}
+
+p{
+    color: #fff;
+}
+
+.boton{
+    width: 50vw;
+}

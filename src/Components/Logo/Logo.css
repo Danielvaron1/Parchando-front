@@ -1,0 +1,64 @@
+.logoContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.logo {
+    width: 50vw; /* ajusta el ancho del logo a la mitad de la pantalla */
+    height: 50vh; /* ajusta el alto del logo a la mitad de la pantalla */
+}
+
+.animate {
+    animation: logoAnimation 1s forwards; /* agrega la animación */
+}
+
+@keyframes logoAnimation {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0.5) translateY(-50vh); /* reduce el tamaño del logo y lo mueve hacia arriba */
+    }
+}
+
+.App-header {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 1vmin);
+    color: white;
+    transition: all 1s ease-in-out;
+}
+
+.App-header.animate {
+    min-height: 8vmin;
+    transform: scale(0.8);
+    animation: header-size-change 2s ease-out;
+}
+
+@keyframes header-size-change {
+    0% {
+        min-height: 100vmin;
+    }
+    100% {
+        min-height: 8vmin;
+    }
+}
+
+.comforter-brush-regular {
+    font-family: "Comforter Brush", cursive;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 15vmin;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+p {
+    margin: 0;
+}
