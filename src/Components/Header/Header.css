@@ -13,12 +13,12 @@
 
 .active{
     font-weight: bold;
-    background-color: #9013FE !important;
+    background-color: #673ab7 !important;
     padding: 10px 15px;
     border-radius: 5px;
     transition: background-color 0.3s, color 0.3s;
 }
 
 .login{
-    background-color: #9013FE !important;
+    background-color: #673ab7 !important;
 }

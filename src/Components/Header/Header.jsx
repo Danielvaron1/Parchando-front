@@ -16,6 +16,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ComforterBrush from '../../Resources/ComforterBrush-Regular.ttf';
 import {useState} from "react";
 import {useUserContext} from "../../Context/UserContext";
+import {Link} from 'react-router-dom';
 import {
     Badge,
     Divider,
@@ -26,7 +27,9 @@ import {
     ListItemText,
     SwipeableDrawer
 } from "@mui/material";
-import {AccountCircle} from "@mui/icons-material";
+import Avatar from "@mui/material/Avatar";
+import {deepPurple} from "@mui/material/colors";
+
 
 const pages = ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -36,6 +39,7 @@ const Header = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [activeItem, setActiveItem] = useState("");
     const [state, setState] = React.useState(false);
+
 
     const handleItemClick = (item) => {
         setActiveItem(item);
@@ -58,7 +62,7 @@ const Header = () => {
             anchorEl={anchorEl}
             anchorOrigin={{
                 vertical: "bottom",
-                horizontal: 'right',
+                horizontal: 'left',
             }}
             id={menuId}
             keepMounted
@@ -76,32 +80,32 @@ const Header = () => {
 
     const list = () => (
         <Box
-            sx={{ width: 250 }}
+            sx={{width: 250}}
             role="presentation"
-            onClick={toggleDrawer( false)}
-            onKeyDown={toggleDrawer( false)}
+            onClick={toggleDrawer(false)}
+            onKeyDown={toggleDrawer(false)}
         >
             <List>
                 {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
                     <ListItem key={text} disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
                             </ListItemIcon>
-                            <ListItemText primary={text} />
+                            <ListItemText primary={text}/>
                         </ListItemButton>
                     </ListItem>
                 ))}
             </List>
-            <Divider />
+            <Divider/>
             <List>
                 {['All mail', 'Trash', 'Spam'].map((text, index) => (
                     <ListItem key={text} disablePadding>
                         <ListItemButton>
                             <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
                             </ListItemIcon>
-                            <ListItemText primary={text} />
+                            <ListItemText primary={text}/>
                         </ListItemButton>
                     </ListItem>
                 ))}
@@ -113,22 +117,24 @@ const Header = () => {
         <AppBar position="static" className="Header">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        className="logo"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: {xs: 'none', md: 'flex'},
-                            fontFamily: {ComforterBrush},
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        Parchando.com
-                    </Typography>
+                    <Link to="/">
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            onClick={()=>{setActiveItem("")}}
+                            className="logo"
+                            sx={{
+                                mr: 2,
+                                display: {xs: 'none', md: 'flex'},
+                                fontFamily: {ComforterBrush},
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            Parchando.com
+                        </Typography>
+                    </Link>
 
                     <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none'}}}>
                         <IconButton
@@ -136,7 +142,7 @@ const Header = () => {
                             aria-label="account of current user"
                             aria-controls="menu-appbar"
                             aria-haspopup="true"
-                            onClick={toggleDrawer( true)}
+                            onClick={toggleDrawer(true)}
                             color="inherit"
                         >
                             <MenuIcon/>
@@ -144,8 +150,8 @@ const Header = () => {
                         <SwipeableDrawer
                             anchor={"left"}
                             open={state}
-                            onClose={toggleDrawer( false)}
-                            onOpen={toggleDrawer( true)}
+                            onClose={toggleDrawer(false)}
+                            onOpen={toggleDrawer(true)}
                         >
                             {list()}
                         </SwipeableDrawer>
@@ -168,22 +174,23 @@ const Header = () => {
                     </Typography>
                     <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex', justifyContent: 'center'}}}>
                         {pages.map((page) => (
-                            <Button
-                                className={`${activeItem === page ? "active" : ""}`}
-                                key={page}
-                                onClick={() => handleItemClick(page)}
-                                sx={{my: 2, color: 'white', display: 'block'}}
-                            >
-                                {page}
-                            </Button>
+                            <Link to={page === "Inicio" ? "/" : `/${page}`} key={page}>
+                                <Button
+                                    className={`${activeItem === page ? "active" : ""}`}
+                                    onClick={() => handleItemClick(page)}
+                                    sx={{my: 2, color: 'white', display: 'block'}}
+                                >
+                                    {page}
+                                </Button>
+                            </Link>
                         ))}
                     </Box>
                     <Box sx={{flexGrow: 0}}>
-                        {userData.name != null ? (
+                        {userData.name != '' ? (
                             <Box>
                                 <IconButton size="large" aria-label="show 4 new mails" color="inherit">
                                     <Badge color="secondary" variant="dot" invisible={false}>
-                                        <MailIcon />
+                                        <MailIcon/>
                                     </Badge>
                                 </IconButton>
                                 <IconButton
@@ -192,7 +199,7 @@ const Header = () => {
                                     color="inherit"
                                 >
                                     <Badge color="secondary" variant="dot" invisible={false}>
-                                        <NotificationsIcon />
+                                        <NotificationsIcon/>
                                     </Badge>
                                 </IconButton>
                                 <IconButton
@@ -204,7 +211,13 @@ const Header = () => {
                                     onClick={handleProfileMenuOpen}
                                     color="inherit"
                                 >
-                                    <AccountCircle />
+                                    <Avatar
+                                        sx={{bgcolor: deepPurple[400]}}
+                                        alt={userData.name}
+                                        src="/static/images/avatar/1.jpg"
+                                    >
+                                        {userData.name.charAt(0)}
+                                    </Avatar>
                                 </IconButton>
                             </Box>
                         ) : (
@@ -212,28 +225,6 @@ const Header = () => {
                                 Entrar
                             </Button>
                         )}
-                        <Menu
-                            sx={{mt: '45px'}}
-                            id="menu-appbar"
-                            anchorEl={null}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean()}
-                            onClose={null}
-                        >
-                            {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={null}>
-                                    <Typography sx={{textAlign: 'center'}}>{setting}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
                     </Box>
                 </Toolbar>
             </Container>

@@ -8,6 +8,7 @@ import RegistroIntereses from "../Components/Registro-Form/Registro-Intereses";
 import {AuthLayout} from "../Views/AuthLayout";
 import {Landing} from "../Views/Landing";
 import CardTemplate from "../Components/Assets/CardTemplate";
+import Perfil from "../Components/Perfil/Perfil";
 
 export const AppRouter = () => {
     return (
@@ -18,6 +19,9 @@ export const AppRouter = () => {
                 }>
                     <Route path="" element={
                         <CardTemplate/>
+                    }/>
+                    <Route path="Perfil" element={
+                        <Perfil/>
                     }/>
                 </Route>
                 <Route path="/auth" element={
@@ -40,10 +44,7 @@ export const AppRouter = () => {
                     }/>
                 </Route>
                 <Route path="*" element={
-                    //404
-                    <AuthLayout>
-                        <Form class="item item-2"/>
-                    </AuthLayout>
+                    <Landing/>
                 }/>
             </Routes>
         </BrowserRouter>

@@ -19,8 +19,8 @@ const RegistroIntereses = () => {
 
     const navigate = useNavigate();
     const handleButtonClick = () => {
-        if (selectedInterest.length < 3) {
-            toast.error('Debes seleccionar 3 intereses', {
+        if (selectedInterest.length < 1) {
+            toast.error('Debes seleccionar almenos 1 intereses', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
