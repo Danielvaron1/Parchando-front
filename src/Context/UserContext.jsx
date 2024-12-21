@@ -8,6 +8,7 @@ export const UserProvider = ({children}) => {
     const [userData, setUserData] = useState(() => {
         const savedData = localStorage.getItem('userData');
         return savedData ? JSON.parse(savedData) : {
+            id: '',
             name: '',
             email: '',
             date: null,

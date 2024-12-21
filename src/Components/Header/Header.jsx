@@ -21,24 +21,72 @@ import {
     Badge,
     Divider,
     List,
-    ListItem,
+    ListItem, ListItemAvatar,
     ListItemButton,
     ListItemIcon,
-    ListItemText,
+    ListItemText, Stack,
     SwipeableDrawer
 } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import {deepPurple} from "@mui/material/colors";
+import {Logout, Settings, People} from "@mui/icons-material";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import dayjs from "dayjs";
 
 
 const pages = ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const Header = () => {
-    const {userData} = useUserContext();
+    const {userData, setUserData} = useUserContext();
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorNot, setAnchorNot] = React.useState(null);
     const [activeItem, setActiveItem] = useState("");
     const [state, setState] = React.useState(false);
+    const [notif, setNotif] = React.useState([
+        {
+            id: 1,
+            tipoId: 1,
+            tipo: "Amistad",
+            fecha: dayjs("2024-08-12 05:23:15"),
+            leido: false
+        },
+        {
+            id: 2,
+            tipoId: 2,
+            tipo: "Solicitud",
+            fecha:  dayjs("2024-08-12 05:23:16"),
+            leido: true
+        },
+        {
+            id: 3,
+            tipoId: 3,
+            tipo: "Cancelado",
+            fecha:  dayjs("2024-08-12 03:23:15"),
+            leido: false
+        },
+        {
+            id: 4,
+            tipoId: 4,
+            tipo: "Comentario",
+            fecha:  dayjs("2024-08-12 05:23:17"),
+            leido: true
+        },
+        {
+            id: 5,
+            tipoId: 5,
+            tipo: "Asistente",
+            fecha:  dayjs("2024-08-12 02:23:15"),
+            leido: false
+        },
+        {
+            id: 6,
+            tipoId: 6,
+            tipo: "Salio",
+            fecha:  dayjs("2024-08-13 05:23:15"),
+            leido: true
+        }
+    ]);
 
 
     const handleItemClick = (item) => {
@@ -47,15 +95,45 @@ const Header = () => {
 
     const menuId = 'primary-search-account-menu';
 
+    const notiId = 'notifications-menu';
+
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
+    };
+    const handleNotificationsOpen = (event) => {
+        setAnchorNot(event.currentTarget);
+        setNotif((prevNotif) => prevNotif.map(noti => ({ ...noti, leido: true })));
     };
 
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
 
+    const handleNotificationsClose = () => {
+        setAnchorNot(null);
+    };
+
+    const hasUnreadNotifications = () => {
+        return notif.some(noti => !noti.leido);
+    };
+
     const isMenuOpen = Boolean(anchorEl);
+
+    const isNotificationsOpen = Boolean(anchorNot);
+
+    function handleLogout() {
+        setUserData({
+            name: '',
+            email: '',
+            date: null,
+            phone: '',
+            password: '',
+            description: '',
+            city: '',
+            interests: []
+        });
+        handleMenuClose()
+    }
 
     const renderMenu = (
         <Menu
@@ -69,8 +147,125 @@ const Header = () => {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+            <Link to={"/PerfilUpdate"}><MenuItem onClick={handleMenuClose}>
+                <ListItemIcon>
+                    <Settings fontSize="small"/>
+                </ListItemIcon>
+                Perfil
+            </MenuItem></Link>
+            <Link to={"/Amigos"}><MenuItem onClick={handleMenuClose}>
+                <ListItemIcon>
+                    <People fontSize="small"/>
+                </ListItemIcon>
+                Amigos
+            </MenuItem></Link>
+            <Divider variant="middle"/>
+            <Link to={"/"}><MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                    <Logout fontSize="small"/>
+                </ListItemIcon>
+                Salir
+            </MenuItem></Link>
+        </Menu>
+    );
+
+    function notifItem(noti) {
+        const mensajes = {
+            "Amistad": "Acepto tu solicitud de amistad",
+            "Solicitud": "Te envió una solicitud de amistad",
+            "Cancelado": "El evento fue cancelado",
+            "Comentario": "Tiene un nuevo comentario",
+            "Asistente": "Una persona se inscribió a tu evento",
+            "Salio": "Una persona se salió de tu evento"
+        };
+        const path = {
+            "Amistad": "/Amigo",
+            "Solicitud": "/Solicitudes",
+            "Cancelado": "/Eventos",
+            "Comentario": "/Evento",
+            "Asistente": "/Evento",
+            "Salio": "/Evento"
+        };
+
+        function handleNotificationRead(id) {
+            handleNotificationsClose();
+            setNotif((prevNotif) => prevNotif.filter((noti) => noti.id !== id));
+        }
+
+        return (
+            <Stack key={noti.id}>
+                <Link to={path[noti.tipo]} onClick={handleNotificationsClose}>
+                    <ListItem key={noti.id} alignItems="flex-start"
+                              secondaryAction={
+                                  <IconButton edge="end" aria-label="read"
+                                              onClick={() => (handleNotificationRead(noti.id))}>
+                                      <DeleteForeverIcon color={"error"}/>
+                                  </IconButton>
+                              }>
+                        {noti.tipo === "Amistad" || noti.tipo === "Solicitud" ? (
+                            <ListItemAvatar>
+                                <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg"/>
+                            </ListItemAvatar>
+                        ) : (
+                            <ListItemAvatar>
+                                <IconButton disableRipple>
+                                    <CalendarMonthIcon  sx={{ color: deepPurple[400] }}/>
+                                </IconButton>
+                            </ListItemAvatar>
+                        )}
+                        <ListItemText
+                            primary={noti.tipoId}
+                            secondary={
+                                <React.Fragment>
+                                    {mensajes[noti.tipo]}
+                                </React.Fragment>
+                            }
+                        />
+
+                    </ListItem>
+                </Link>
+                <Divider variant="middle" component="li"/>
+
+            </Stack>
+        );
+    }
+    const renderNotifications = (
+        <Menu
+            anchorEl={anchorNot}
+            anchorOrigin={{
+                vertical: "bottom",
+                horizontal: 'left',
+            }}
+            id={notiId}
+            keepMounted
+            open={isNotificationsOpen}
+            onClose={handleNotificationsClose}
+        >
+            <List sx={{
+                width: '100%',
+                minWidth: {xs: 350, sm: 450},
+                maxWidth: 500,
+                maxHeight: 450,
+                bgcolor: 'background.paper'
+            }}>
+                {notif.length != 0 ? (
+                    <Stack>
+                        <Divider variant="middle" component="li"/>
+                        {notif
+                            .sort((a, b) => b.fecha - a.fecha)
+                            .map(notifItem)}
+                    </Stack>
+                ) : (
+                    <Stack sx={{justifyContent: 'center', alignItems: 'center'}}>
+                        <Typography
+                            component="span"
+                            variant="h6"
+                            sx={{color: 'text.primary', display: 'inline'}}
+                        > No tienes Notificaciones</Typography>
+                    </Stack>
+                )}
+
+            </List>
         </Menu>
     );
 
@@ -122,7 +317,9 @@ const Header = () => {
                             variant="h6"
                             noWrap
                             component="a"
-                            onClick={()=>{setActiveItem("")}}
+                            onClick={() => {
+                                setActiveItem("")
+                            }}
                             className="logo"
                             sx={{
                                 mr: 2,
@@ -188,17 +385,19 @@ const Header = () => {
                     <Box sx={{flexGrow: 0}}>
                         {userData.name != '' ? (
                             <Box>
-                                <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                                <IconButton size="large" aria-label="show 4 new mails" color="inherit" to={"/Mensajes"} component={Link}>
                                     <Badge color="secondary" variant="dot" invisible={false}>
                                         <MailIcon/>
                                     </Badge>
                                 </IconButton>
                                 <IconButton
                                     size="large"
+                                    aria-controls={notiId}
                                     aria-label="show 17 new notifications"
+                                    onClick={handleNotificationsOpen}
                                     color="inherit"
                                 >
-                                    <Badge color="secondary" variant="dot" invisible={false}>
+                                    <Badge color="secondary" variant="dot" invisible={!hasUnreadNotifications()}>
                                         <NotificationsIcon/>
                                     </Badge>
                                 </IconButton>
@@ -229,6 +428,7 @@ const Header = () => {
                 </Toolbar>
             </Container>
             {renderMenu}
+            {renderNotifications}
         </AppBar>
     );
 };

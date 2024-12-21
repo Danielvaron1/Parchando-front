@@ -9,6 +9,11 @@ import {AuthLayout} from "../Views/AuthLayout";
 import {Landing} from "../Views/Landing";
 import CardTemplate from "../Components/Assets/CardTemplate";
 import Perfil from "../Components/Perfil/Perfil";
+import PerfilUsuario from "../Components/Perfil/PerfilUsuario";
+import Amigos from "../Components/Perfil/Amigos";
+import Evento from "../Components/Evento/Evento";
+import MensajesIndex from "../Components/Mensajes/MensajesIndex";
+import Chat from "../Components/Mensajes/Chat";
 
 export const AppRouter = () => {
     return (
@@ -20,8 +25,23 @@ export const AppRouter = () => {
                     <Route path="" element={
                         <CardTemplate/>
                     }/>
-                    <Route path="Perfil" element={
+                    <Route path="PerfilUpdate" element={
                         <Perfil/>
+                    }/>
+                    <Route path="Perfil" element={
+                        <PerfilUsuario/>
+                    }/>
+                    <Route path="Amigos" element={
+                        <Amigos/>
+                    }/>
+                    <Route path="Evento" element={
+                        <Evento/>
+                    }/>
+                    <Route path="Mensajes" element={
+                        <MensajesIndex/>
+                    }/>
+                    <Route path="Chat" element={
+                        <Chat/>
                     }/>
                 </Route>
                 <Route path="/auth" element={

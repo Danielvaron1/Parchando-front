@@ -44,7 +44,7 @@ const Form = () => {
                 <br/>
                 <br/>
                 <br/>
-                <Button className="boton" size="lg" color="secondary" onClick={handleButtonClick}>
+                <Button className="boton" size="lg" color="secondary" onPress={handleButtonClick}>
                     Conectate
                 </Button>
                 <br/>

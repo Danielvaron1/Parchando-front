@@ -34,7 +34,7 @@ const RegistroIntereses = () => {
         }
         else {
             setUserData({ ...userData, interests: selectedInterest });
-            navigate('/another-page');
+            navigate('/');
         }
     };
 

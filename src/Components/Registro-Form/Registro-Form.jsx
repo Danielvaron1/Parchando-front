@@ -98,7 +98,6 @@ const RegistroForm = () => {
             errors.description = 'La descripción no puede estar vacía';
             setDescrIsInvalid(true);
         }
-
         setErrors(errors);
         let isValid=true;
 
@@ -125,7 +124,6 @@ const RegistroForm = () => {
     const handleButtonClick = () => {
         const { isValid, errors } = validateForm();
         if (!isValid) {
-            console.error(errors);
         } else {
             setUserData(
                 {

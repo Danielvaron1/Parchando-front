@@ -1,0 +1,17 @@
+
+.input {
+    background: white;
+    width: 100%;
+    padding: 10px 12px; /* Ajusta el padding según sea necesario */
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 4px; /* Bordes redondeados */
+    font-size: 16px; /* Tamaño de fuente */
+    box-shadow: none; /* Sin sombra */
+    transition: border-color 0.3s; /* Transición suave */
+    margin-bottom: 4px;
+}
+
+.input:focus {
+    border-color: #3f51b5; /* Color del borde al enfocar */
+    outline: none; /* Sin contorno */
+}
