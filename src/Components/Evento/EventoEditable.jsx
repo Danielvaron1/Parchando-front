@@ -150,7 +150,7 @@ const EventoEditable = ({editable}) => {
     }
 
     async function validateForm() {
-        if (place == null || evento.titulo == "" || evento.fecha == null || evento.hora == null || evento.descripcion == "") {
+        if (place == null || evento.titulo === "" || evento.fecha == null || evento.hora == null || evento.descripcion === "") {
             toast.error('Campos inválidos', {
                 position: "top-right",
                 autoClose: 3000,

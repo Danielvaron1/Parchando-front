@@ -1,4 +1,4 @@
-import {Divider, List, ListItem, ListItemAvatar, ListItemText, Stack} from "@mui/material";
+import {Divider, ListItem, ListItemAvatar, ListItemText, Stack} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import * as React from 'react';
 import {deepPurple} from "@mui/material/colors";

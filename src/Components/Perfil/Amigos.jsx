@@ -14,10 +14,6 @@ import {Bounce, toast} from "react-toastify";
 import UserCard from "../Assets/UserCard";
 
 
-function DeleteIcon(props: { fontSize: string }) {
-    return null;
-}
-
 const Amigos = () => {
     const [users] = useState([
         {

@@ -1,17 +1,15 @@
-import {Badge, Divider, Paper, Stack, TextField} from "@mui/material";
+import { Divider, Paper, Stack, TextField} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import * as React from 'react';
 import {deepPurple} from "@mui/material/colors";
-import CardHeader from "@mui/material/CardHeader";
 import Card from "@mui/material/Card";
-import {Button} from "@nextui-org/react";
 import Typography from "@mui/material/Typography";
 import './Chat.css';
 import {useUserContext} from "../../Context/UserContext";
 import IconButton from "@mui/material/IconButton";
 import SendIcon from '@mui/icons-material/Send';
 const Chat = () => {
-    const {userData, setUserData} = useUserContext();
+    const {userData} = useUserContext();
     const [messages, setMessages] = React.useState([
         {id: 1, text: "Hola, ¿cómo estás?", user: {name: "DUser 1", avatar: "https://example.com/avatar1.jpg"}},
         {
@@ -24,20 +22,18 @@ const Chat = () => {
     const [inputValue, setInputValue] = React.useState("");
     const messagesEndRef = React.useRef(null);
 
-    // Función para desplazar el scroll hacia el final
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({behavior: "smooth"});
         }
     };
 
-    // Usar useEffect para desplazar el scroll cada vez que se agregue un nuevo mensaje
     React.useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
     const handleSendMessage = () => {
-        if (inputValue.trim() != "") {
+        if (inputValue.trim() !== "") {
             const newMessage = {
                 id: messages.length + 1,
                 text: inputValue,
@@ -73,12 +69,12 @@ const Chat = () => {
                     color: 'white'
                 }}>Chat</Typography>
             </Stack>
-            <div className="scrollable" style={{flexGrow: 1, overflowY: "auto", padding: 16, height: "76vh"}}>
+            <div className="scrollable" style={{flexGrow: 1, overflowY: "auto", padding: 16, height: "75vh"}}>
                 {messages.map((message) => (
                     <Card key={message.id} sx={{
                         marginBottom: 1,
                         display: 'flex',
-                        flexDirection: userData.name == message.user.name ? 'row' : 'row-reverse'
+                        flexDirection: userData.name === message.user.name ? 'row' : 'row-reverse'
                     }}>
                         <Stack sx={{
                             flexGrow: 1,

@@ -14,7 +14,7 @@ import {deepPurple} from "@mui/material/colors";
 const libs: Library[] = ["core", "maps", "places", "marker"]
 const EventoVer = () => {
 
-    const [evento, setEvento] = useState({
+    const [evento] = useState({
         usuarioId: "1",
         titulo: "Montar cicla",
         precio: "1,232",
@@ -49,8 +49,6 @@ const EventoVer = () => {
     function handleCreateEvent() {
         return;
     }
-
-    const API_KEY = process.env.REACT_APP_GOOGLE_API;
 
 
 
@@ -97,7 +95,7 @@ const EventoVer = () => {
                     <Typography color={"textSecondary"} variant={"subtitle2"}>{resultadoFinal}</Typography>
                     <Typography color={"textPrimary"} variant={"h6"}>{evento.titulo}</Typography>
                     <Typography color={"textSecondary"} variant={"caption"}>
-                        {evento.precio == "" || evento.precio == "0" ? (
+                        {evento.precio === "" || evento.precio === "0" ? (
                             <span>Evento gratuito</span>
                         ) : (
                             <span>Precio del evento: ${evento.precio}</span>

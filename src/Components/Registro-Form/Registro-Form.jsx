@@ -61,7 +61,7 @@ const RegistroForm = () => {
             description: ''
         };
 
-        if (name.trim() == '') {
+        if (name.trim() === '') {
             errors.name = 'El nombre no puede estar vacío';
             setNameIsInvalid(true);
         }
@@ -78,7 +78,7 @@ const RegistroForm = () => {
         if (age < 18) {
             errors.date = 'Debes tener al menos 18 años';
             setDateIsInvalid(true);
-        } else if(date==''){
+        } else if(date===''){
             errors.date = 'Debes introducir tu fecha de nacimiento';
             setDateIsInvalid(true);
         }
@@ -88,13 +88,13 @@ const RegistroForm = () => {
             setPhoneIsInvalid(true);
         }
 
-        if (password != confPass) {
+        if (password !== confPass) {
             errors.password = 'Las contraseñas no coinciden';
             setPassIsInvalid(true);
             setConfPIsInvalid(true);
         }
 
-        if (descr.trim() == '') {
+        if (descr.trim() === '') {
             errors.description = 'La descripción no puede estar vacía';
             setDescrIsInvalid(true);
         }

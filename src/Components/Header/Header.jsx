@@ -248,7 +248,7 @@ const Header = () => {
                 maxHeight: 450,
                 bgcolor: 'background.paper'
             }}>
-                {notif.length != 0 ? (
+                {notif.length !== 0 ? (
                     <Stack>
                         <Divider variant="middle" component="li"/>
                         {notif
@@ -383,7 +383,7 @@ const Header = () => {
                         ))}
                     </Box>
                     <Box sx={{flexGrow: 0}}>
-                        {userData.name != '' ? (
+                        {userData.name !== '' ? (
                             <Box>
                                 <IconButton size="large" aria-label="show 4 new mails" color="inherit" to={"/Mensajes"} component={Link}>
                                     <Badge color="secondary" variant="dot" invisible={false}>
