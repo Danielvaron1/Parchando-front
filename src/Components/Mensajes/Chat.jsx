@@ -60,10 +60,10 @@ const Chat = () => {
             <Stack sx={{backgroundColor: deepPurple[500], padding: 1, justifyContent:"center" ,alignItems:"center",display: 'flex', flexDirection:"row" }} position="static">
                     <Avatar
                         sx={{bgcolor: deepPurple[400], width: 30, height: 30, marginRight:1}}
-                        alt={userData.name}
+                        alt={userData.nombre}
                         src="/static/images/avatar/1.jpg"
                     >
-                        {userData.name.charAt(0)}
+                        {userData.nombre.charAt(0)}
                     </Avatar>
                 <Typography variant="subtitle1" sx={{
                     color: 'white'
@@ -74,11 +74,11 @@ const Chat = () => {
                     <Card key={message.id} sx={{
                         marginBottom: 1,
                         display: 'flex',
-                        flexDirection: userData.name === message.user.name ? 'row' : 'row-reverse'
+                        flexDirection: userData.nombre === message.user.name ? 'row' : 'row-reverse'
                     }}>
                         <Stack sx={{
                             flexGrow: 1,
-                            textAlign: userData.name === message.user.name ? 'right' : 'left',
+                            textAlign: userData.nombre === message.user.name ? 'right' : 'left',
                             padding: 1
                         }}>
                             <Typography variant="body2" color={"textPrimary"}>
@@ -94,8 +94,8 @@ const Chat = () => {
                         </Stack>
                         <Avatar alt={message.user.name} sx={{
                             bgcolor: deepPurple[400],
-                            marginLeft: userData.name === message.user.name ? 0 : 1,
-                            marginRight: userData.name === message.user.name ? 1 : 0,
+                            marginLeft: userData.nombre === message.user.name ? 0 : 1,
+                            marginRight: userData.nombre === message.user.name ? 1 : 0,
                             marginTop: 1
                         }} src={message.user.avatar}>
                             {message.user.name.charAt(0).toUpperCase()}

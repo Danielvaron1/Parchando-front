@@ -38,7 +38,7 @@ import dayjs from "dayjs";
 const pages = ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'];
 
 const Header = () => {
-    const {userData, setUserData} = useUserContext();
+    const {userData, handleLogout} = useUserContext();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorNot, setAnchorNot] = React.useState(null);
     const [activeItem, setActiveItem] = useState("");
@@ -55,35 +55,35 @@ const Header = () => {
             id: 2,
             tipoId: 2,
             tipo: "Solicitud",
-            fecha:  dayjs("2024-08-12 05:23:16"),
+            fecha: dayjs("2024-08-12 05:23:16"),
             leido: true
         },
         {
             id: 3,
             tipoId: 3,
             tipo: "Cancelado",
-            fecha:  dayjs("2024-08-12 03:23:15"),
+            fecha: dayjs("2024-08-12 03:23:15"),
             leido: false
         },
         {
             id: 4,
             tipoId: 4,
             tipo: "Comentario",
-            fecha:  dayjs("2024-08-12 05:23:17"),
+            fecha: dayjs("2024-08-12 05:23:17"),
             leido: true
         },
         {
             id: 5,
             tipoId: 5,
             tipo: "Asistente",
-            fecha:  dayjs("2024-08-12 02:23:15"),
+            fecha: dayjs("2024-08-12 02:23:15"),
             leido: false
         },
         {
             id: 6,
             tipoId: 6,
             tipo: "Salio",
-            fecha:  dayjs("2024-08-13 05:23:15"),
+            fecha: dayjs("2024-08-13 05:23:15"),
             leido: true
         }
     ]);
@@ -102,7 +102,7 @@ const Header = () => {
     };
     const handleNotificationsOpen = (event) => {
         setAnchorNot(event.currentTarget);
-        setNotif((prevNotif) => prevNotif.map(noti => ({ ...noti, leido: true })));
+        setNotif((prevNotif) => prevNotif.map(noti => ({...noti, leido: true})));
     };
 
     const handleMenuClose = () => {
@@ -121,17 +121,8 @@ const Header = () => {
 
     const isNotificationsOpen = Boolean(anchorNot);
 
-    function handleLogout() {
-        setUserData({
-            name: '',
-            email: '',
-            date: null,
-            phone: '',
-            password: '',
-            description: '',
-            city: '',
-            interests: []
-        });
+    function handleLogoutClick() {
+        handleLogout();
         handleMenuClose()
     }
 
@@ -160,7 +151,7 @@ const Header = () => {
                 Amigos
             </MenuItem></Link>
             <Divider variant="middle"/>
-            <Link to={"/"}><MenuItem onClick={handleLogout}>
+            <Link to={"/"}><MenuItem onClick={handleLogoutClick}>
                 <ListItemIcon>
                     <Logout fontSize="small"/>
                 </ListItemIcon>
@@ -209,7 +200,7 @@ const Header = () => {
                         ) : (
                             <ListItemAvatar>
                                 <IconButton disableRipple>
-                                    <CalendarMonthIcon  sx={{ color: deepPurple[400] }}/>
+                                    <CalendarMonthIcon sx={{color: deepPurple[400]}}/>
                                 </IconButton>
                             </ListItemAvatar>
                         )}
@@ -229,6 +220,7 @@ const Header = () => {
             </Stack>
         );
     }
+
     const renderNotifications = (
         <Menu
             anchorEl={anchorNot}
@@ -316,7 +308,6 @@ const Header = () => {
                         <Typography
                             variant="h6"
                             noWrap
-                            component="a"
                             onClick={() => {
                                 setActiveItem("")
                             }}
@@ -333,7 +324,7 @@ const Header = () => {
                         </Typography>
                     </Link>
 
-                    <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none'}}}>
+                    <Box sx={{ display: {xs: 'flex', md: 'none'}}}>
                         <IconButton
                             size="large"
                             aria-label="account of current user"
@@ -353,22 +344,21 @@ const Header = () => {
                             {list()}
                         </SwipeableDrawer>
                     </Box>
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="a"
-                        className="logo"
-                        href="/"
-                        sx={{
-                            mr: 2,
-                            display: {xs: 'flex', md: 'none'},
-                            flexGrow: 1,
-                            color: 'inherit',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        Parchando.com
-                    </Typography>
+                    <Box sx={{flexGrow: 1, display: {xs: 'flex', md: 'none'}, justifyContent: 'center'}}>
+                        <Link to="/">
+                            <Typography
+                                variant="h5"
+                                noWrap
+                                className="logo"
+                                sx={{
+                                    color: 'inherit',
+                                    textDecoration: 'none',
+                                }}
+                            >
+                                Parchando.com
+                            </Typography>
+                        </Link>
+                    </Box>
                     <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex', justifyContent: 'center'}}}>
                         {pages.map((page) => (
                             <Link to={page === "Inicio" ? "/" : `/${page}`} key={page}>
@@ -383,9 +373,10 @@ const Header = () => {
                         ))}
                     </Box>
                     <Box sx={{flexGrow: 0}}>
-                        {userData.name !== '' ? (
+                        {userData.nombre !== '' ? (
                             <Box>
-                                <IconButton size="large" aria-label="show 4 new mails" color="inherit" to={"/Mensajes"} component={Link}>
+                                <IconButton size="large" aria-label="show 4 new mails" color="inherit" to={"/Mensajes"}
+                                            component={Link}>
                                     <Badge color="secondary" variant="dot" invisible={false}>
                                         <MailIcon/>
                                     </Badge>
@@ -412,10 +403,10 @@ const Header = () => {
                                 >
                                     <Avatar
                                         sx={{bgcolor: deepPurple[400]}}
-                                        alt={userData.name}
+                                        alt={userData.nombre}
                                         src="/static/images/avatar/1.jpg"
                                     >
-                                        {userData.name.charAt(0)}
+                                        {userData.nombre.charAt(0)}
                                     </Avatar>
                                 </IconButton>
                             </Box>

@@ -171,7 +171,7 @@ const EventoEditable = ({editable}) => {
             fecha: dayjs(evento.fecha).format('YYYY-MM-DD'),
             hora: dayjs(evento.hora).format('hh:mm A'),
             usuarioId: userData.id,
-            ciudad: userData.city
+            ciudad: userData.ciudad
         };
         toast.success('Evento creado', {
             position: "top-right",

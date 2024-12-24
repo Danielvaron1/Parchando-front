@@ -40,7 +40,7 @@ const Amigos = () => {
     ]);
     const {userData} = useUserContext();
 
-    const currentUserInterest = userData.interests;
+    const currentUserInterest = userData.intereses;
 
 
     const [anchorEl, setAnchorEl] = useState(null);

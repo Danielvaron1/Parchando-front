@@ -122,18 +122,18 @@ const RegistroForm = () => {
 
     const navigate = useNavigate();
     const handleButtonClick = () => {
-        const { isValid, errors } = validateForm();
+        const { isValid } = validateForm();
         if (!isValid) {
         } else {
             setUserData(
                 {
                     ...userData,
-                    name: name,
-                    email: email,
-                    date: date,
-                    phone: phone,
-                    password: password,
-                    description: descr
+                    nombre: name,
+                    correo: email,
+                    fechaNacimiento: date,
+                    telefono: phone,
+                    contrasena: password,
+                    descripcion: descr
                 });
             navigate('/auth/registro-ciudad');
         }

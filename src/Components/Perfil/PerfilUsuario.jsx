@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Button from "@mui/material/Button";
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import ChatIcon from '@mui/icons-material/Chat';
 import {
     Chip, Dialog, DialogActions,
@@ -21,37 +21,54 @@ import {
 import {useUserContext} from "../../Context/UserContext";
 import {Bounce, toast} from "react-toastify";
 import {useLocation} from "react-router-dom";
+import {getUsers} from "../../Api/UsuariosApi";
 
 
 const PerfilUsuario = () => {
+    const {token} = useUserContext();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const userName = queryParams.get("name");
-
-    const [user,setUser] = useState({
-        name: userName || 'Daniel Alejandro Varón Rojas',
-        description: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-        city: 'Bogotá',
-        interests: ["Restaurantes", "Motociclismo", "Senderismo"],
+    const [user, setUser] = useState({
+        nombre: userName || 'Daniel Alejandro Varón Rojas',
+        descripcion: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
+        ciudad: 'Bogotá',
+        intereses: ["Restaurantes", "Motociclismo", "Senderismo"],
         amigo: true
     });
+
+    useEffect(() => {
+            const fetchUserData = async () => {
+                try {
+                    const data = await getUsers(token);
+                    console.log(data);
+                } catch (error) {
+                    console.log(error.message);
+                }
+            };
+
+            fetchUserData();
+        }, []
+    )
+    ;
+
     const {userData} = useUserContext();
 
-    const currentUserInterest = userData.interests;
+    const currentUserInterest = userData.intereses;
 
     const info = (
         <Stack>
             <Typography color={"textPrimary"} variant="overline">
-                {user.city}
+                {user.ciudad}
             </Typography>
             <Typography color={"textPrimary"} variant="caption" sx={{fontWeight: 'bold'}}>
                 Sobre mi
             </Typography>
             <Typography color={"textPrimary"} variant="body2">
-                {user.description}
+                {user.descripcion}
             </Typography>
             <Stack direction="row" spacing={1}>
-                {user.interests.map((interest) => {
+                {user.intereses.map((interest) => {
                     const isInterestMatched = currentUserInterest.includes(interest);
                     return (
                         <Chip
@@ -75,7 +92,7 @@ const PerfilUsuario = () => {
 
     const handleDeleteFriend = () => {
         handleCloseDelete();
-        setUser({...user, amigo:false});
+        setUser({...user, amigo: false});
         toast.success('Amigo eliminado', {
             position: "top-right",
             autoClose: 3000,
@@ -111,14 +128,14 @@ const PerfilUsuario = () => {
                 >
                     <Avatar
                         sx={{width: {xs: 100, md: 150}, height: {xs: 100, md: 150}, bgcolor: deepPurple[400]}}
-                        alt={user.name}
+                        alt={user.nombre}
                         src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jpg"
                     >
                         <Typography sx={{
                             fontSize: {xs: '2rem', md: '3rem'}
                         }}>
                             A
-                            {/*{userData.name.charAt(0).toUpperCase()}*/}
+                            {/*{userData.nombre.charAt(0).toUpperCase()}*/}
                         </Typography>
                     </Avatar>
                 </IconButton>
@@ -132,7 +149,7 @@ const PerfilUsuario = () => {
                             <Typography color={"textPrimary"} sx={{
                                 fontSize: {xs: '1.5rem', md: '2rem'},
                             }}>
-                                {user.name}
+                                {user.nombre}
                             </Typography>
                         </Stack>
 
@@ -192,11 +209,11 @@ const PerfilUsuario = () => {
                     aria-labelledby="responsive-dialog-title"
                 >
                     <DialogTitle id="responsive-dialog-title">
-                        {`Eliminar a ${user.name} de tu lista de amigos`}
+                        {`Eliminar a ${user.nombre} de tu lista de amigos`}
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            ¿Confirmas que quieres eliminar a {user.name} de tu lista de
+                            ¿Confirmas que quieres eliminar a {user.nombre} de tu lista de
                             amigos?
                         </DialogContentText>
                     </DialogContent>

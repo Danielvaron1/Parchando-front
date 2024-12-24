@@ -36,7 +36,7 @@ eighteenYearsAgo.setFullYear(today.getFullYear() - 18);
 
 const Perfil = () => {
     const {userData, setUserData} = useUserContext();
-    const [user, setUser] = useState({...userData, date:  userData.date ? dayjs(userData.date) : null});
+    const [user, setUser] = useState({...userData, fechaNacimiento:  userData.fechaNacimiento ? dayjs(userData.fechaNacimiento) : null});
     const [errors, setErrors] = useState( {
         name: false,
         email: false,
@@ -73,19 +73,19 @@ const Perfil = () => {
             interests: false
         };
 
-        if (user.name.trim() == '') {
+        if (user.nombre.trim() === '') {
             err.name=true;
         }
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(user.email)) {
+        if (!emailRegex.test(user.correo)) {
             err.email=true;
         }
 
-        if(user.date==null){
+        if(user.fechaNacimiento==null){
             err.date = true;
         } else{
-            const dateOfBirth = new Date(user.date);
+            const dateOfBirth = new Date(user.fechaNacimiento);
             const today = new Date();
             const age = parseInt((today - dateOfBirth)/365/24/60/60/1000)
             if (age < 18) {
@@ -94,19 +94,19 @@ const Perfil = () => {
         }
 
         const phoneRegex = /^[0-9]{10}$/;
-        if (!phoneRegex.test(user.phone)) {
+        if (!phoneRegex.test(user.telefono)) {
             err.phone = true;
         }
 
-        if (user.description.trim() == '') {
+        if (user.descripcion.trim() === '') {
             err.description = true;
         }
 
-        if (user.city == null || user.city == '') {
+        if (user.ciudad == null || user.ciudad === '') {
             err.city = true;
         }
 
-        if (user.interests.length==0) {
+        if (user.intereses.length===0) {
             err.interests = true;
         }
 
@@ -125,7 +125,7 @@ const Perfil = () => {
                 transition: Bounce
             });
         } else{
-            setUserData({...user, date: dayjs(user.date).format('YYYY-MM-DD')});
+            setUserData({...user, fechaNacimiento: dayjs(user.fechaNacimiento).format('YYYY-MM-DD')});
             toast.success('Usuario actualizado', {
                 position: "top-right",
                 autoClose: 3000,
@@ -141,12 +141,12 @@ const Perfil = () => {
     };
 
     function setUserInterests(value) {
-        if (value.length == 3) {
+        if (value.length === 3) {
             interesesCont = intereses;
-            setUser({...user, interests: value});
+            setUser({...user, intereses: value});
         } else {
             interesesCont = [];
-            setUser({...user, interests: value});
+            setUser({...user, intereses: value});
         }
     }
 
@@ -165,14 +165,14 @@ const Perfil = () => {
                 >
                     <Avatar
                         sx={{width: {xs: 100, md: 150}, height: {xs: 100, md: 150}, bgcolor: deepPurple[400]}}
-                        alt={userData.name}
+                        alt={userData.nombre}
                         src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jpg"
                     >
                         <Typography sx={{
                             fontSize: {xs: '2rem', md: '3rem'}
                         }}>
                             A
-                            {/*{userData.name.charAt(0).toUpperCase()}*/}
+                            {/*{userData.nombre.charAt(0).toUpperCase()}*/}
                         </Typography>
                     </Avatar>
                 </IconButton>
@@ -180,7 +180,7 @@ const Perfil = () => {
                     <Typography color={"textPrimary"} sx={{
                         fontSize: {xs: '2rem'}
                     }}>
-                        {userData.name}
+                        {userData.nombre}
                     </Typography>
                     <Stack direction="row" sx={{
                         justifyContent: "center",
@@ -218,13 +218,13 @@ const Perfil = () => {
                        alignItems: "center",
                    }}>
                 <Stack sx={{width: {xs: 300, md: 400}, maxWidth: '100%'}}>
-                    <TextField id="nombre" error={errors.name} label="Nombre" margin="dense" value={user.name}
+                    <TextField id="nombre" error={errors.name} label="Nombre" margin="dense" value={user.nombre}
                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                   setUser({...user, name: event.target.value});
+                                   setUser({...user, nombre: event.target.value});
                                }}/>
-                    <TextField id="correo" error={errors.email} type={"email"} label="Correo" margin="dense" value={user.email}
+                    <TextField id="correo" error={errors.email} type={"email"} label="Correo" margin="dense" value={user.correo}
                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                   setUser({...user, email: event.target.value});
+                                   setUser({...user, correo: event.target.value});
                                }}/>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
@@ -238,25 +238,25 @@ const Perfil = () => {
                             }}
                             label="Fecha de nacimiento"
                             referenceDate={dayjs('2022-04-17')}
-                            value={user.date}
+                            value={user.fechaNacimiento}
                             onChange={(newValue) => {
-                                setUser( {...user, date:newValue})
+                                setUser( {...user, fechaNacimiento:newValue})
                             }}
                         />
                     </LocalizationProvider>
 
                 </Stack>
                 <Stack sx={{width: {xs: 300, md: 400}, maxWidth: '100%'}}>
-                    <TextField id="outlined-basic" error={errors.phone} type={"tel"} label="Telefono" margin="dense" value={user.phone}
+                    <TextField id="outlined-basic" error={errors.phone} type={"tel"} label="Telefono" margin="dense" value={user.telefono}
                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                   setUser({...user, phone: event.target.value});
+                                   setUser({...user, telefono: event.target.value});
                                }}/>
                     <Autocomplete
                         disablePortal
                         options={ciudades}
-                        value={user.city}
+                        value={user.ciudad}
                         onChange={(event, newValue) => {
-                            setUser({...user, city: newValue});
+                            setUser({...user, ciudad: newValue});
                         }}
                         renderInput={(params) => <TextField {...params} error={errors.city} margin="dense" label="Ciudad"/>}
                     />
@@ -266,7 +266,7 @@ const Perfil = () => {
                         id="tags-outlined"
                         options={intereses}
                         filterSelectedOptions
-                        value={user.interests}
+                        value={user.intereses}
                         onChange={(event, value) => {
                             setUserInterests(value);
                         }}
@@ -297,9 +297,9 @@ const Perfil = () => {
                         label="Descripción"
                         multiline
                         rows={2}
-                        value={user.description}
+                        value={user.descripcion}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                            setUser({...user, description: event.target.value});
+                            setUser({...user, descripcion: event.target.value});
                         }}
                     />
                 </Stack>

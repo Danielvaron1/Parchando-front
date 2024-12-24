@@ -33,7 +33,7 @@ const RegistroCiudad = () => {
                 transition: Bounce
             });
         } else {
-            setUserData({ ...userData, city: selectedCity });
+            setUserData({ ...userData, ciudad: selectedCity });
             navigate('/auth/registro-intereses');
         }
     };

@@ -10,9 +10,12 @@ import 'dayjs/locale/es';
 import {Library} from "@googlemaps/js-api-loader";
 import {useJsApiLoader} from "@react-google-maps/api";
 import {deepPurple} from "@mui/material/colors";
+import Comentarios from "../Assets/Comentarios";
+import Asistentes from "../Assets/Asistentes";
 
 const libs: Library[] = ["core", "maps", "places", "marker"]
 const EventoVer = () => {
+    const eventDetailsRef = useRef(null);
 
     const [evento] = useState({
         usuarioId: "1",
@@ -83,9 +86,39 @@ const EventoVer = () => {
         }
     }, [isLoaded]);
 
+    const [eventDetailsHeight, setEventDetailsHeight] = useState(0);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (eventDetailsRef.current) {
+                setEventDetailsHeight(eventDetailsRef.current.clientHeight);
+            }
+        };
+
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+
+        const debouncedHandleResize = debounce(handleResize, 200);
+
+        // Llama a la función de ajuste de altura al cargar el componente
+        handleResize();
+
+        // Agrega el listener de resize
+        window.addEventListener("resize", debouncedHandleResize);
+
+        return () => {
+            window.removeEventListener("resize", debouncedHandleResize);
+        };
+    }, []);
+
     return (
         <Stack>
-            <Stack direction={{xs: 'column', sm: 'row'}} sx={{
+            <Stack direction={{xs: 'column', sm: 'row'}} ref={eventDetailsRef} sx={{
                 justifyContent: "space-evenly",
                 alignItems: "center",
                 marginTop: 1,
@@ -133,14 +166,15 @@ const EventoVer = () => {
             <Stack direction={{xs: 'column', sm: 'row'}} sx={{
                 justifyContent: "space-evenly",
                 alignItems: "center",
-                marginTop: 2
+                flexGrow: 1,
+                overflow: 'hidden'
             }}>
-                <Stack>
-                    hola
+                <Stack  sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
+                    <Comentarios maxHeight={`calc(100vh - ${eventDetailsHeight}px - 210px)`}/>
                 </Stack>
                 <Divider orientation="vertical" flexItem />
-                <Stack>
-                    hola
+                <Stack sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
+                    <Asistentes maxHeight={`calc(100vh - ${eventDetailsHeight}px - 163px)`}/>
                 </Stack>
             </Stack>
         </Stack>

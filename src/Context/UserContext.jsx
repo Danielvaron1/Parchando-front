@@ -9,23 +9,48 @@ export const UserProvider = ({children}) => {
         const savedData = localStorage.getItem('userData');
         return savedData ? JSON.parse(savedData) : {
             id: '',
-            name: '',
-            email: '',
-            date: null,
-            phone: '',
-            password: '',
-            description: '',
-            city: '',
-            interests: []
+            nombre: '',
+            correo: '',
+            fechaNacimiento: null,
+            telefono: '',
+            descripcion: '',
+            ciudad: '',
+            intereses: [],
+            fotos:""
         };
     });
+
+    const [token, setToken] = useState(() => {
+        return localStorage.getItem('token') || "";
+    });
+
+    const handleLogout = () => {
+        setUserData({
+            id: '',
+            nombre: '',
+            correo: '',
+            fechaNacimiento: null,
+            telefono: '',
+            descripcion: '',
+            ciudad: '',
+            intereses: [],
+            fotos:""
+        });
+        setToken("");
+        localStorage.removeItem('userData');
+        localStorage.removeItem('token');
+    };
 
     useEffect(() => {
         localStorage.setItem('userData', JSON.stringify(userData));
     }, [userData]);
 
+    useEffect(() => {
+        localStorage.setItem('token', token);
+    }, [token]);
+
     return (
-        <UserContext.Provider value={{userData, setUserData}}>
+        <UserContext.Provider value={{userData, setUserData, handleLogout, token, setToken }}>
             {children}
         </UserContext.Provider>
     );
