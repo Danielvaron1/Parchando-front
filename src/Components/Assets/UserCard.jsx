@@ -20,33 +20,86 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import {acceptAmigos, createAmigos, deleteAmigos} from "../../Api/UsuariosApi";
+import {Bounce, toast} from "react-toastify";
+import {useUserContext} from "../../Context/UserContext";
 
 const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose, handleClickOpenDelete}) => {
+    const {userData, token} = useUserContext();
+    const handleCancelSol = () => {
+        deleteAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud cancelada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            })
+    };
 
+    function handleAddAmigo() {
+        createAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud enviada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            })
+    }
+
+    function handleAceptarSolicitud() {
+        acceptAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud Aceptada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            });
+    }
 
     return (
         <Card sx={{maxWidth: 345}}>
             <CardHeader
                 avatar={
-                    <Avatar alt={user.name} sx={{bgcolor: deepPurple[400]}} aria-label="recipe"
+                    <Avatar alt={user.nombre} sx={{bgcolor: deepPurple[400]}} aria-label="recipe"
                             src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jp">
-                        {user.name.charAt(0).toUpperCase()}
+                        {user.nombre.charAt(0).toUpperCase()}
                     </Avatar>
                 }
                 action={
-                    user.amigo ? (
+                    user.amigo === "aceptado" ? (
                         <IconButton aria-label="settings" onClick={(event) => handleClick(event, user)}>
                             <MoreVertIcon/>
                         </IconButton>
                     ) : null
                 }
-                title={user.name}
-                subheader={user.city}
+                title={user.nombre}
+                subheader={user.ciudad}
                 sx={{paddingBottom: 0}}
             />
             <CardContent sx={{paddingTop: 1, paddingBottom: 1}}>
                 <Stack direction="row" spacing={1}>
-                    {user.interests.map((interest) => {
+                    {user.intereses.map((interest) => {
                         const isInterestMatched = currentUserInterest.includes(interest);
                         return (
                             <Chip
@@ -67,7 +120,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                     justifyContent: "space-between",
                     alignItems: "center",
                 }}>
-                    <Link to={`/Perfil?name=${user.name}`} style={{textDecoration: 'none'}}>
+                    <Link to={`/Perfil?id=${user.id}`} style={{textDecoration: 'none'}}>
                         <Button
                             sx={{marginLeft: 2}}
                             component="label"
@@ -80,18 +133,31 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                         </Button>
                     </Link>
                     {
-                        user.amigo ? (
-                                <Button
-                                    sx={{marginLeft: 2}}
-                                    component="label"
-                                    role={undefined}
-                                    variant="contained"
-                                    tabIndex={-1}
-                                    startIcon={<ChatIcon/>}
-                                >
-                                    Mensaje
-                                </Button>
-                            ) :
+                        user.amigo === "aceptado" ? (
+                            <Button
+                                sx={{marginLeft: 2}}
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<ChatIcon/>}
+                            >
+                                Mensaje
+                            </Button>
+                        ) : user.amigo === "pendiente" ? (
+                            <Button
+                                sx={{marginLeft: 2}}
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                color="error"
+                                startIcon={<PersonRemoveIcon/>}
+                                onClick={handleCancelSol}
+                            >
+                                Cancelar
+                            </Button>
+                        ) : user.amigo === "solicitud" ? (
                             <Button
                                 sx={{marginLeft: 2}}
                                 component="label"
@@ -99,9 +165,23 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                                 variant="contained"
                                 tabIndex={-1}
                                 startIcon={<PersonAddIcon/>}
+                                onClick={handleAceptarSolicitud}
+                            >
+                                Aceptar
+                            </Button>
+                        ) : (
+                            <Button
+                                sx={{marginLeft: 2}}
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<PersonAddIcon/>}
+                                onClick={handleAddAmigo}
                             >
                                 Añadir
                             </Button>
+                        )
                     }
                 </Stack>
             </CardActions>

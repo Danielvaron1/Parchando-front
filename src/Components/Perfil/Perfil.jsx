@@ -29,8 +29,8 @@ const ciudades = [
 
 let interesesCont = []
 
-const today = new Date(); // Fecha actual
-const eighteenYearsAgo = new Date(today); // Crea una nueva instancia de Date basada en la fecha actual
+const today = new Date();
+const eighteenYearsAgo = new Date(today);
 eighteenYearsAgo.setFullYear(today.getFullYear() - 18);
 
 

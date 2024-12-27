@@ -31,9 +31,6 @@ const Form = () => {
                 const token = await postLogin(email, password);
                 setToken(token.token);
                 const user = await getUsersParams({ correo: email }, token.token);
-                if (user.intereses) {
-                    user.intereses = user.intereses.replace(/'/g, "").split(",").map(interest => interest.trim());
-                }
                 setUserData(user);
                 navigate("/");
             } catch (error) {
@@ -53,9 +50,16 @@ const Form = () => {
         }
     };
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleButtonClick();
+        }
+    };
+
     return (
         <div className={`form-container ${showForm ? 'show' : ''}`} >
-            <form>
+            <form onKeyDown={handleKeyDown}>
                 <div
                     className="text-white focus:border-white form-input">
                     <InputForm label={"Correo"} value={email} setValue={setEmail} isInvalid={isInvalid} type={"email"} error={"Por favor ingrese un correo valido"}/>

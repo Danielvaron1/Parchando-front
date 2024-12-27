@@ -31,7 +31,8 @@ async function getUsers(token) {
         method: 'GET',
         headers: {Authorization: 'Bearer '+ token }
     });
-    return data.json();
+    const userData= await data.json();
+    return userData;
 }
 
 async function getUsersParams({ usuarioId, correo, telefono }, token) {
@@ -59,7 +60,13 @@ async function getUsersParams({ usuarioId, correo, telefono }, token) {
         throw new Error(`Error en la solicitud: ${data.status} ${data.statusText}`);
     }
 
-    return data.json();
+    const userData= await data.json();
+
+    if (userData.intereses) {
+        userData.intereses = userData.intereses.replace(/'/g, "").split(",").map(interest => interest.trim());
+    }
+
+    return userData;
 }
 
 async function postUser (data) {
@@ -84,9 +91,142 @@ async function postUser (data) {
 }
 
 
+//AMIGOS
+
+async function getUserAmigo(usuarioId1,usuarioId2,token){
+    try {
+        const data = await fetch(`${usersURL}${amigPath}/amigo?usuario1=${usuarioId1}&usuario2=${usuarioId2}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        const result = await data.json();
+        if (result.usuario2.intereses) {
+            result.usuario2.intereses = result.usuario2.intereses.replace(/'/g, "").split(",").map(interest => interest.trim());
+        }
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+async function getUserAmigos({ usuarioId, estado },token){
+    try {
+        const params = new URLSearchParams();
+
+        if (usuarioId) {
+            params.append('usuario', usuarioId);
+        }
+        if (estado) {
+            params.append('estado', estado);
+        }
+
+        const data = await fetch(`${usersURL}${amigPath}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        const result = await data.json();
+        result.forEach(amigo => {
+            amigo.usuario2.intereses = amigo.usuario2.intereses.replace(/'/g, "").split(",").map(interest => interest.trim());
+        });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
+
+async function deleteAmigos(usuarioId1,usuarioId2,token) {
+    try {
+        const data = await fetch(`${usersURL}${amigPath}/amigo?usuario1=${usuarioId1}&usuario2=${usuarioId2}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function createAmigos(usuarioId1,usuarioId2,token){
+    try {
+        const body = {
+            usuario1: usuarioId1,
+            usuario2: usuarioId2
+        };
+        const data = await fetch(`${usersURL}${amigPath}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function acceptAmigos(usuarioId1,usuarioId2,token) {
+    try {
+        const data = await fetch(`${usersURL}${amigPath}/amigo?usuario1=${usuarioId1}&usuario2=${usuarioId2}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
+
+//NOTIFICACIONES
+
+
 export {
     getUsers,
     getUsersParams,
     postLogin,
-    postUser
+    postUser,
+    getUserAmigo,
+    getUserAmigos,
+    deleteAmigos,
+    createAmigos,
+    acceptAmigos
 }

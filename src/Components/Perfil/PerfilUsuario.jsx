@@ -21,38 +21,57 @@ import {
 import {useUserContext} from "../../Context/UserContext";
 import {Bounce, toast} from "react-toastify";
 import {useLocation} from "react-router-dom";
-import {getUsers} from "../../Api/UsuariosApi";
+import {acceptAmigos, createAmigos, deleteAmigos, getUserAmigo, getUsersParams} from "../../Api/UsuariosApi";
 
 
 const PerfilUsuario = () => {
-    const {token} = useUserContext();
+    const {userData, token} = useUserContext();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const userName = queryParams.get("name");
+    const userId = queryParams.get("id");
     const [user, setUser] = useState({
-        nombre: userName || 'Daniel Alejandro Varón Rojas',
-        descripcion: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-        ciudad: 'Bogotá',
-        intereses: ["Restaurantes", "Motociclismo", "Senderismo"],
-        amigo: true
+        id: "",
+        nombre: '',
+        descripcion: '',
+        ciudad: '',
+        intereses: [],
+        amigo: ""
     });
+    /*Amigo "aceptado" "pendiente" "solicitud" ""*/
 
     useEffect(() => {
-            const fetchUserData = async () => {
+        const fetchUserData = async () => {
+            try {
+                const userAmigo = await getUserAmigo(userData.id, userId, token);
+                setUser({
+                    id: userAmigo.usuario2.id,
+                    nombre: userAmigo.usuario2.nombre,
+                    descripcion: userAmigo.usuario2.descripcion,
+                    ciudad: userAmigo.usuario2.ciudad,
+                    intereses: userAmigo.usuario2.intereses,
+                    amigo: userAmigo.estado
+                });
+            } catch (error) {
+
                 try {
-                    const data = await getUsers(token);
-                    console.log(data);
-                } catch (error) {
-                    console.log(error.message);
+                    const userFetch = await getUsersParams({usuarioId: userId}, token);
+                    setUser({
+                        id: userFetch.id,
+                        nombre: userFetch.nombre,
+                        descripcion: userFetch.descripcion,
+                        ciudad: userFetch.ciudad,
+                        intereses: userFetch.intereses,
+                        amigo: ""
+                    });
+                } catch (fetchError) {
+                    console.log("Error al obtener usuario:", fetchError.message);
                 }
-            };
+            }
+        };
 
-            fetchUserData();
-        }, []
-    )
-    ;
+        fetchUserData();
+    }, []);
 
-    const {userData} = useUserContext();
 
     const currentUserInterest = userData.intereses;
 
@@ -92,18 +111,21 @@ const PerfilUsuario = () => {
 
     const handleDeleteFriend = () => {
         handleCloseDelete();
-        setUser({...user, amigo: false});
-        toast.success('Amigo eliminado', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce
-        });
+        deleteAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Amigo Eliminado', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                setUser({...user, amigo: ""});
+            }).catch(e => console.log(e));
     };
 
     const handleClickOpenDelete = () => {
@@ -112,6 +134,60 @@ const PerfilUsuario = () => {
 
     function handleCloseDelete() {
         setDeleteOpen(false);
+    }
+
+    function handleCancelarSolicitud() {
+        deleteAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud Cancelada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                setUser({...user, amigo: ""});
+            }).catch(e => console.log(e));
+    }
+
+    function handleEnviarSolicitud() {
+        createAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud Enviada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                setUser({...user, amigo: "pendiente"});
+            }).catch(e => console.log(e));
+    }
+
+    function handleAceptarSolicitud() {
+        acceptAmigos(userData.id, user.id, token)
+            .then(() => {
+                toast.success('Solicitud Aceptada', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                setUser({...user, amigo: "aceptado"});
+            }).catch(e => console.log(e));
     }
 
     return (
@@ -153,7 +229,7 @@ const PerfilUsuario = () => {
                             </Typography>
                         </Stack>
 
-                        {user.amigo ? (
+                        {user.amigo === "aceptado" ? (
                             <Stack direction="row" sx={{
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -176,6 +252,39 @@ const PerfilUsuario = () => {
                                     Mensaje
                                 </Button>
                             </Stack>
+                        ) : user.amigo === "pendiente" ? (
+                            <Stack sx={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}>
+                                <Button
+                                    sx={{marginLeft: 2, marginRight: {xs: 2, md: 0}}}
+                                    component="label"
+                                    role={undefined}
+                                    variant="outlined"
+                                    color="error"
+                                    startIcon={<PersonRemoveIcon/>}
+                                    onClick={handleCancelarSolicitud}
+                                >
+                                    Cancelar Solicitud
+                                </Button>
+                            </Stack>
+                        ) : user.amigo === "solicitud" ? (
+                            <Stack sx={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}>
+                                <Button
+                                    sx={{marginLeft: 2, marginRight: {xs: 2, md: 0}}}
+                                    component="label"
+                                    role={undefined}
+                                    variant="outlined"
+                                    startIcon={<PersonAddIcon/>}
+                                    onClick={handleAceptarSolicitud}
+                                >
+                                    Aceptar Solicitud
+                                </Button>
+                            </Stack>
                         ) : (
                             <Stack sx={{
                                 justifyContent: "center",
@@ -187,6 +296,7 @@ const PerfilUsuario = () => {
                                     role={undefined}
                                     variant="contained"
                                     startIcon={<PersonAddIcon/>}
+                                    onClick={handleEnviarSolicitud}
                                 >
                                     Añadir
                                 </Button>

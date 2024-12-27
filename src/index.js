@@ -15,6 +15,5 @@ root.render(
             </AppRouter>
         </UserProvider>
         <ToastContainer stacked/>
-
     </React.StrictMode>
 );
