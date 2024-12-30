@@ -20,7 +20,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import {acceptAmigos, createAmigos, deleteAmigos} from "../../Api/UsuariosApi";
+import {acceptAmigos, createAmigos, createNotificacion, deleteAmigos} from "../../Api/UsuariosApi";
 import {Bounce, toast} from "react-toastify";
 import {useUserContext} from "../../Context/UserContext";
 
@@ -57,6 +57,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                     theme: "dark",
                     transition: Bounce
                 });
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud"},token);
             })
     }
 
@@ -74,6 +75,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                     theme: "dark",
                     transition: Bounce
                 });
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad"},token);
             });
     }
 

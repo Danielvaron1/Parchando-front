@@ -3,6 +3,7 @@ const notifPath="Notificaciones";
 const amigPath="Amigos";
 const usersURL = process.env.REACT_APP_USER_API;
 
+//USUARIOS
 
 async function postLogin(email, password){
 
@@ -19,8 +20,7 @@ async function postLogin(email, password){
             throw new Error('Error en la solicitud: ' + response.statusText);
         }
 
-        const result = await response.json();
-        return result;
+        return await response.json();
     } catch (error) {
         throw error;
     }
@@ -31,8 +31,7 @@ async function getUsers(token) {
         method: 'GET',
         headers: {Authorization: 'Bearer '+ token }
     });
-    const userData= await data.json();
-    return userData;
+    return await data.json();
 }
 
 async function getUsersParams({ usuarioId, correo, telefono }, token) {
@@ -83,7 +82,52 @@ async function postUser (data) {
             throw new Error('Error en la solicitud: ' + response.statusText);
         }
 
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function putPwdUser (data,token) {
+    try {
+        const response = await fetch(usersURL + usersPath + "/usuario", {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.status !== 204) {
+            throw new Error('Error en la solicitud: ' + response.statusText);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function putUser (id,data,token) {
+    try {
+        const response = await fetch(usersURL + usersPath + `/usuario/${id}`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la solicitud: ' + response.statusText);
+        }
+
         const result = await response.json();
+
+        if (result.intereses) {
+            result.intereses = result.intereses.replace(/'/g, "").split(",").map(interest => interest.trim());
+        }
+
         return result;
     } catch (error) {
         throw error;
@@ -117,7 +161,6 @@ async function getUserAmigo(usuarioId1,usuarioId2,token){
     }
 }
 
-
 async function getUserAmigos({ usuarioId, estado },token){
     try {
         const params = new URLSearchParams();
@@ -150,9 +193,6 @@ async function getUserAmigos({ usuarioId, estado },token){
         throw error;
     }
 }
-
-
-
 
 async function deleteAmigos(usuarioId1,usuarioId2,token) {
     try {
@@ -218,15 +258,110 @@ async function acceptAmigos(usuarioId1,usuarioId2,token) {
 
 //NOTIFICACIONES
 
+async function getNotificaciones( usuarioId,token){
+    try {
+
+        const data = await fetch(`${usersURL}${notifPath}?usuarioId=${usuarioId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        return await data.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function readNotificaciones( usuarioId,token){
+    try {
+
+        const data = await fetch(`${usersURL}${notifPath}?usuarioId=${usuarioId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        return await data.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function createNotificacion({usuarioId,tipoId,tipo},token){
+    try {
+
+        const params = new URLSearchParams();
+
+        params.append('usuarioId', usuarioId);
+        params.append('tipoId', tipoId);
+        params.append('tipo', tipo);
+
+        const data = await fetch(`${usersURL}${notifPath}?${params.toString()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        return await data.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function deleteNotificaciones( id,token){
+    try {
+
+        const data = await fetch(`${usersURL}${notifPath}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
 
 export {
     getUsers,
     getUsersParams,
     postLogin,
     postUser,
+    putPwdUser,
+    putUser,
+
     getUserAmigo,
     getUserAmigos,
     deleteAmigos,
     createAmigos,
-    acceptAmigos
+    acceptAmigos,
+
+    getNotificaciones,
+    readNotificaciones,
+    createNotificacion,
+    deleteNotificaciones
 }

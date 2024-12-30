@@ -1,5 +1,14 @@
 import {useUserContext} from "../../Context/UserContext";
-import {Autocomplete, Stack, styled, TextField} from "@mui/material";
+import {
+    Autocomplete, Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle, InputAdornment,
+    Stack,
+    styled,
+    TextField
+} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import {deepPurple} from "@mui/material/colors";
 import IconButton from "@mui/material/IconButton";
@@ -14,6 +23,8 @@ import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {putPwdUser, putUser} from "../../Api/UsuariosApi";
 
 const intereses = [
     "Viajar", "Musica", "Bicicleta", "Cine", "Museos",
@@ -35,7 +46,7 @@ eighteenYearsAgo.setFullYear(today.getFullYear() - 18);
 
 
 const Perfil = () => {
-    const {userData, setUserData} = useUserContext();
+    const {userData, setUserData,token} = useUserContext();
     const [user, setUser] = useState({...userData, fechaNacimiento:  userData.fechaNacimiento ? dayjs(userData.fechaNacimiento) : null});
     const [errors, setErrors] = useState( {
         name: false,
@@ -61,8 +72,8 @@ const Perfil = () => {
     });
 
 
-    const validateForm = () => {
-        const err ={
+    const validateForm = async () => {
+        const err = {
             name: false,
             email: false,
             date: false,
@@ -74,20 +85,20 @@ const Perfil = () => {
         };
 
         if (user.nombre.trim() === '') {
-            err.name=true;
+            err.name = true;
         }
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(user.correo)) {
-            err.email=true;
+            err.email = true;
         }
 
-        if(user.fechaNacimiento==null){
+        if (user.fechaNacimiento == null) {
             err.date = true;
-        } else{
+        } else {
             const dateOfBirth = new Date(user.fechaNacimiento);
             const today = new Date();
-            const age = parseInt((today - dateOfBirth)/365/24/60/60/1000)
+            const age = parseInt((today - dateOfBirth) / 365 / 24 / 60 / 60 / 1000)
             if (age < 18) {
                 err.date = true;
             }
@@ -106,7 +117,7 @@ const Perfil = () => {
             err.city = true;
         }
 
-        if (user.intereses.length===0) {
+        if (user.intereses.length === 0) {
             err.interests = true;
         }
 
@@ -124,21 +135,63 @@ const Perfil = () => {
                 theme: "dark",
                 transition: Bounce
             });
-        } else{
-            setUserData({...user, fechaNacimiento: dayjs(user.fechaNacimiento).format('YYYY-MM-DD')});
-            toast.success('Usuario actualizado', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Bounce
-            });
+        } else {
+            const formattedInterests = user.intereses.map(interest => `'${interest}'`).join(',');
+            const userUpdate = {
+                nombre: user.nombre,
+                correo: user.correo,
+                fechaNacimiento: dayjs(user.fechaNacimiento).format('YYYY-MM-DD'),
+                telefono: user.telefono,
+                contrasena: "null",
+                descripcion: user.descripcion,
+                ciudad: user.ciudad,
+                intereses: formattedInterests,
+                fotos: user.fotos,
+            }
+            try {
+
+                const userUpdated= await putUser(user.id,userUpdate, token);
+                toast.success('Usuario actualizado', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                setUserData(userUpdated);
+
+            } catch (error) {
+                toast.error('Error al actualizar usuario', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            }
         }
     };
+
+    const [open, setOpen] = React.useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+
 
     function setUserInterests(value) {
         if (value.length === 3) {
@@ -322,11 +375,94 @@ const Perfil = () => {
                 <Stack sx={{width: {xs: 300, md: 400}, marginTop: {xs: 2, sm: 0}, maxWidth: '100%'}}>
                     <Button
                         variant="outlined"
+                        onClick={handleClickOpen}
                     >
                         Cambiar Contraseña
                     </Button>
                 </Stack>
             </Stack>
+
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: async (event) => {
+                        event.preventDefault();
+                        const formData = new FormData(event.currentTarget);
+                        const formJson = Object.fromEntries(formData.entries());
+                        const password = formJson.password;
+                        const data={id:userData.id,contrasena:password}
+                        try {
+
+                            await putPwdUser(data,token);
+                            toast.success('Contraseña actualizada', {
+                                position: "top-right",
+                                autoClose: 3000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "dark",
+                                transition: Bounce
+                            });
+
+                        } catch (error) {
+                            toast.error('Error al cambiar contraseña', {
+                                position: "top-right",
+                                autoClose: 3000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "dark",
+                                transition: Bounce
+                            });
+                        }
+                        handleClose();
+                    },
+                }}
+            >
+                <DialogTitle>Cambiar Contraseña</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Escribe tu nueva contraseña
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="password"
+                        name="password"
+                        label="Contraseña nueva"
+                        type={showPassword ? "text" : "password"}
+                        fullWidth
+                        variant="standard"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        edge="end"
+                                    >
+                                        {showPassword ? (
+                                            <Visibility sx={{ color: 'black' }} />
+                                        ) : (
+                                            <VisibilityOff sx={{ color: 'black' }} />
+                                        )}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancelar</Button>
+                    <Button type="submit">Cambiar Contraseña</Button>
+                </DialogActions>
+            </Dialog>
         </Stack>
     )
         ;

@@ -21,7 +21,14 @@ import {
 import {useUserContext} from "../../Context/UserContext";
 import {Bounce, toast} from "react-toastify";
 import {useLocation} from "react-router-dom";
-import {acceptAmigos, createAmigos, deleteAmigos, getUserAmigo, getUsersParams} from "../../Api/UsuariosApi";
+import {
+    acceptAmigos,
+    createAmigos,
+    createNotificacion,
+    deleteAmigos,
+    getUserAmigo,
+    getUsersParams
+} from "../../Api/UsuariosApi";
 
 
 const PerfilUsuario = () => {
@@ -168,6 +175,7 @@ const PerfilUsuario = () => {
                     theme: "dark",
                     transition: Bounce
                 });
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud"},token);
                 setUser({...user, amigo: "pendiente"});
             }).catch(e => console.log(e));
     }
@@ -187,6 +195,7 @@ const PerfilUsuario = () => {
                     transition: Bounce
                 });
                 setUser({...user, amigo: "aceptado"});
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad"},token);
             }).catch(e => console.log(e));
     }
 
