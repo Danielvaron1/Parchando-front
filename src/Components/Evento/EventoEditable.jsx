@@ -6,11 +6,13 @@ import {
     DialogTitle,
     InputAdornment,
     Stack,
-    TextField, useMediaQuery, useTheme
+    TextField,
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
 import * as React from "react";
-import Button from "@mui/material/Button";
 import {useEffect, useRef, useState} from "react";
+import Button from "@mui/material/Button";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
@@ -20,9 +22,11 @@ import {Library} from "@googlemaps/js-api-loader";
 import "./Evento.css"
 import {Bounce, toast} from "react-toastify";
 import {useUserContext} from "../../Context/UserContext";
+import {deleteEvento, postEvento, putEvento} from "../../Api/EventosApi";
+import {useNavigate} from "react-router-dom";
 
 const libs: Library[] = ["core", "maps", "places", "marker"]
-const EventoEditable = ({editable}) => {
+const EventoEditable = ({editable,eventoFetch}) => {
     const {userData } = useUserContext();
     const [map, setMap] = useState(null);
     const [autoComplete, setAutoComplete] = useState(null);
@@ -30,6 +34,8 @@ const EventoEditable = ({editable}) => {
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     const [deleteOpen, setDeleteOpen] = React.useState(false);
+    const [locacionCargada, setLocacionCargada] = React.useState(null);
+    const navigate = useNavigate();
 
     const [evento, setEvento] = useState({
         usuarioId: "",
@@ -44,13 +50,50 @@ const EventoEditable = ({editable}) => {
 
     const {isLoaded} = useJsApiLoader({
         googleMapsApiKey: process.env.REACT_APP_GOOGLE_API,
-        libraries: libs
+        libraries: libs,
+        language: 'es',
     })
 
     const mapRef = useRef(null);
     const placeAutoCompleteRef = useRef(null);
 
     const [place, setPlace] = useState(null);
+
+    useEffect(() => {
+        if (eventoFetch) {
+            if(eventoFetch.usuarioId===userData.id){
+                const fechaCompleta = dayjs(eventoFetch.fecha);
+                setEvento({
+                    usuarioId: eventoFetch.usuarioId,
+                    titulo: eventoFetch.titulo,
+                    precio: eventoFetch.precio,
+                    descripcion: eventoFetch.descripcion,
+                    fecha: fechaCompleta,
+                    hora: fechaCompleta,
+                    ubicacion: eventoFetch.ubicacion,
+                    ciudad: eventoFetch.ciudad,
+                    id: eventoFetch.id
+                });
+                setPlace(eventoFetch.ubicacion);
+                const partesUbicacion =eventoFetch.ubicacion.split('/');
+                setLocacionCargada({lat: parseFloat(partesUbicacion[1]), lng: parseFloat(partesUbicacion[2])});
+            } else{
+                navigate(`/Evento?id=${eventoFetch.id}`);
+            }
+
+        } else {
+            setEvento({
+                usuarioId: "",
+                titulo: "",
+                precio: "",
+                descripcion: "",
+                fecha: null,
+                hora: null,
+                ubicacion: "",
+                ciudad: ""
+            });
+        }
+    }, [eventoFetch]);
 
     useEffect(() => {
         if (isLoaded) {
@@ -83,7 +126,7 @@ const EventoEditable = ({editable}) => {
             setAutoComplete(gAutoComplete);
             setMap(gMap);
         }
-    }, [isLoaded]);
+    }, [isLoaded,locacionCargada]);
 
     useEffect(() => {
         if (autoComplete) {
@@ -105,6 +148,12 @@ const EventoEditable = ({editable}) => {
             })
         }
     }, [autoComplete]);
+
+    useEffect(() => {
+        if(locacionCargada!=null){
+            setMarker(locacionCargada,evento.titulo);
+        }
+    },[map])
 
     function setMarker(location, name) {
         if (!map) return;
@@ -129,15 +178,50 @@ const EventoEditable = ({editable}) => {
         setEvento({...evento, precio: formattedValue});
     };
 
-    function handleCreateEvent() {
-        if (validateForm()) {
-            return;
+    async function handleCreateEvent() {
+        const eventoValid = await validateForm();
+        if (eventoValid) {
+            try {
+                const eventoTemp=await postEvento(eventoValid);
+                toast.success('Evento creado', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                navigate(`/Evento?id=${eventoTemp.id}`);
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+            }
         }
     }
 
-    function handleUpdateEvent() {
-        if (validateForm()) {
-            return;
+    async function handleUpdateEvent() {
+        const eventoValid = await validateForm();
+        if(eventoValid){
+            const {id, ...eventoTemp} = eventoValid;
+            try {
+                await putEvento(id,eventoTemp);
+                toast.success('Evento actualizado', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                navigate(`/Evento?id=${evento.id}`);
+            } catch (error) {
+                console.error("Error fetching event data:", error);
+            }
         }
     }
 
@@ -165,34 +249,9 @@ const EventoEditable = ({editable}) => {
             console.log(evento);
             return false;
         }
-        const eventoTemp = {
-            ...evento,
-            ubicacion: place.address + "/" + place.lat + "/" + place.lng,
-            fecha: dayjs(evento.fecha).format('YYYY-MM-DD'),
-            hora: dayjs(evento.hora).format('hh:mm A'),
-            usuarioId: userData.id,
-            ciudad: userData.ciudad
-        };
-        toast.success('Evento creado', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-            transition: Bounce
-        });
-        console.log(eventoTemp);
-
-        return true;
-    }
-
-    const handleDeleteEvent = () => {
-        handleCloseDelete();
-        if (evento) {
-            toast.success('Evento eliminado', {
+        const today = dayjs().startOf('day');
+        if (evento.fecha.isBefore(today)) {
+            toast.error('La fecha debe ser mayor a hoy', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -203,6 +262,49 @@ const EventoEditable = ({editable}) => {
                 theme: "dark",
                 transition: Bounce
             });
+            return false;
+        }
+
+        let ubi;
+        if(place.address){
+            ubi=place.address + "/" + place.lat + "/" + place.lng;
+        }else{
+            ubi=place;
+        }
+        const combinedDateTime = dayjs(`${dayjs(evento.fecha).format('YYYY-MM-DD')}T${dayjs(evento.hora).format('HH:mm:ss')}`);
+
+        const { hora, ...eventoTemp } = evento;
+
+        return {
+            ...eventoTemp,
+            ubicacion: ubi,
+            fecha: combinedDateTime.format('YYYY-MM-DDTHH:mm:ss'),
+            usuarioId: userData.id,
+            ciudad: userData.ciudad
+        } ;
+    }
+
+    const handleDeleteEvent = async () => {
+        handleCloseDelete();
+        if (evento) {
+            try {
+                await deleteEvento(evento.id);
+                toast.success('Evento eliminado', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+                navigate(`/`);
+            } catch (error) {
+                console.error("Error deletar evento", error);
+            }
+
         }
     };
 
@@ -265,7 +367,7 @@ const EventoEditable = ({editable}) => {
                     </LocalizationProvider>
                 </Stack>
                 <Stack sx={{width: {xs: 300, md: 400}, maxWidth: '100%'}}>
-                    <input className={"input"} ref={placeAutoCompleteRef}/>
+                    <input className={"input"} ref={placeAutoCompleteRef} placeholder={evento.ubicacion ? eventoFetch.ubicacion.split('/')[0] : "Busca una ubicación"}/>
                     {isLoaded ?
                         <div style={{height: "400px"}} ref={mapRef}/>
                         : <p>Cargando...</p>

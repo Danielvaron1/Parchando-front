@@ -300,7 +300,7 @@ async function readNotificaciones( usuarioId,token){
     }
 }
 
-async function createNotificacion({usuarioId,tipoId,tipo},token){
+async function createNotificacion({usuarioId,tipoId,tipo,nombre},token){
     try {
 
         const params = new URLSearchParams();
@@ -308,6 +308,7 @@ async function createNotificacion({usuarioId,tipoId,tipo},token){
         params.append('usuarioId', usuarioId);
         params.append('tipoId', tipoId);
         params.append('tipo', tipo);
+        params.append('nombre', nombre);
 
         const data = await fetch(`${usersURL}${notifPath}?${params.toString()}`, {
             method: 'POST',

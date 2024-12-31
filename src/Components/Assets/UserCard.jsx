@@ -57,7 +57,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                     theme: "dark",
                     transition: Bounce
                 });
-                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud"},token);
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud",nombre:userData.nombre},token);
             })
     }
 
@@ -75,7 +75,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                     theme: "dark",
                     transition: Bounce
                 });
-                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad"},token);
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad",nombre:userData.nombre},token);
             });
     }
 

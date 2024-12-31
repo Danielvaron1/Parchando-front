@@ -5,105 +5,133 @@ import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {Stack} from "@mui/material";
+import {red} from '@mui/material/colors';
+import {CircularProgress, Stack} from "@mui/material";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import InfoIcon from '@mui/icons-material/Info';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import dayjs from "dayjs";
+import localeData from "dayjs/plugin/localeData";
+import {useJsApiLoader} from "@react-google-maps/api";
+import {Library} from "@googlemaps/js-api-loader";
+
+const libs: Library[] = ["core", "maps", "places", "marker"];
+export default function CardTemplate({evento}) {
+    const [resultadoFinal, setResultadoFinal] = useState("");
+    const [partesUbicacion, setPartesUbicacion] = useState([]);
+    const [map, setMap] = useState(null);
+    const {isLoaded} = useJsApiLoader({
+        googleMapsApiKey: process.env.REACT_APP_GOOGLE_API,
+        libraries: libs,
+        language: 'es',
+    });
+    const mapRef = useRef(null);
+
+    const [loading, setLoading] = useState(true);
+
+    dayjs.extend(localeData);
+    dayjs.locale('es');
+
+    useEffect(() => {
+        if (evento) {
+            const fechaCompleta = dayjs(evento.fecha);
+            const fechaHora = dayjs(fechaCompleta);
+            const formatoDeseado = fechaHora.format('MMMM D, YYYY h:mm A');
+            setResultadoFinal(formatoDeseado.charAt(0).toUpperCase() + formatoDeseado.substring(1));
+            if (evento.ubicacion) {
+                setPartesUbicacion(evento.ubicacion.split('/'));
+            }
+        }
+        setLoading(false);
+    }, [evento])
+
+    useEffect(() => {
+        if (isLoaded && partesUbicacion.length > 2 && mapRef.current) {
+            const location = {lat: parseFloat(partesUbicacion[1]), lng: parseFloat(partesUbicacion[2])};
+            const mapOptions = {
+                center: location,
+                zoom: 5,
+                mapId: "MY-MAP-" + evento.id,
+                mapTypeId: "roadmap",
+                fullscreenControl: false,
+                disableDefaultUI: true,
+            };
+            const gMap = new window.google.maps.Map(mapRef.current, mapOptions);
+
+            gMap.setZoom(17);
+            const marker = new window.google.maps.marker.AdvancedMarkerElement({
+                map: gMap,
+                position: location,
+                title: evento.titulo,
+            });
+            setMap(gMap);
+        }
+    }, [isLoaded, partesUbicacion, evento]);
 
 
-
-export default function CardTemplate() {
-    const [user] = useState(
-        {
-            name: 'Donatelo Angelo',
-            description: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-            city: 'Bogotá',
-            interests: ["Restaurantes", "Motociclismo", "Senderismo"],
-            amigo: false
-        });
+    if (loading || !evento) {
+        return (
+            <Stack direction="row" sx={{justifyContent: "center", marginTop: '10px'}}>
+                <CircularProgress color="secondary"/>
+            </Stack>);
+    }
 
     return (
-        <Stack direction="row" spacing={2} sx={{justifyContent: "center", marginTop: '15px' , marginLeft: '15px', flexWrap: 'wrap' }} useFlexGap>
-            <Card sx={{ maxWidth: 345 }}>
-                <CardHeader
-                    avatar={
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                            R
-                        </Avatar>
+        <Card sx={{width: 350}}>
+            <CardHeader
+                avatar={
+                    <Avatar sx={{bgcolor: red[500]}} aria-label="recipe">
+                        R
+                    </Avatar>
+                }
+                title={evento.titulo}
+                subheader={resultadoFinal}
+            />
+            <CardMedia>
+                <Stack>
+                    {isLoaded ?
+                        <div style={{height: "150px"}} ref={mapRef}/>
+                        : <p>Cargando...</p>
                     }
-                    action={
-                        <IconButton aria-label="settings">
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
-                    title="Event Name"
-                    subheader="September 14, 2016 12:00"
-                />
-                <CardMedia>
-                    <iframe id="iframeid"
-                            style={{border:0}}
-                            src="https://www.google.com/maps/embed?api=1&origin=Space+Needle+Seattle+WA&destination=Pike+Place+Market+Seattle+WA&travelmode=bicycling"
-                    ></iframe>
-                </CardMedia>
-                <CardContent>
-                    <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                        Descripción del plan, This impressive paella is a perfect party dish and a fun meal to cook
-                        together with your guests. Add 1 cup of frozen peas along with the mussels,
-                        if you like.
-                    </Typography>
-                </CardContent>
-                <CardActions>
-                    <Stack direction="row" sx={{
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}>
-                        <Link to={`/Evento?name=${user.name}`} style={{textDecoration: 'none'}}>
-                            <Button
-                                sx={{marginLeft: 2}}
-                                component="label"
-                                role={undefined}
-                                variant="contained"
-                                tabIndex={-1}
-                                startIcon={<InfoIcon/>}
-                            >
-                                Detalles
-                            </Button>
-                        </Link>
-                        {
-                            user.amigo ? (
-                                    <Button
-                                        sx={{marginLeft: 2}}
-                                        component="label"
-                                        role={undefined}
-                                        variant="contained"
-                                        tabIndex={-1}
-                                        color="error"
-                                        startIcon={<EventBusyIcon/>}
-                                    >
-                                        No Asistire
-                                    </Button>
-                                ) :
-                                <Button
-                                    sx={{marginLeft: 2}}
-                                    component="label"
-                                    role={undefined}
-                                    variant="contained"
-                                    tabIndex={-1}
-                                    startIcon={<EventAvailableIcon/>}
-                                >
-                                    Asistire
-                                </Button>
-                        }
-                    </Stack>
-                </CardActions>
-            </Card>
-        </Stack>
+                </Stack>
+            </CardMedia>
+            <CardContent>
+                <Typography color={"textSecondary"} variant={"caption"}>
+                    {evento.precio === "" || evento.precio === "0" ? (
+                        <span>Evento gratuito</span>
+                    ) : (
+                        <span>Precio del evento: ${evento.precio}</span>
+                    )}
+                </Typography>
+                <Typography variant="body2" sx={{
+                    color: 'text.secondary',
+                    display: '-webkit-box',
+                    overflow: 'hidden',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: 2,
+                    height: 40
+                }}>
+                    {evento.descripcion}
+                </Typography>
+            </CardContent>
+            <CardActions sx={{
+                justifyContent: "center",
+                alignItems: "center",
+            }}>
+                <Link to={`/Evento?id=${evento.id}`} style={{textDecoration: 'none'}}>
+                    <Button
+                        component="label"
+                        role={undefined}
+                        variant="contained"
+                        tabIndex={-1}
+                        startIcon={<InfoIcon/>}
+                    >
+                        Detalles
+                    </Button>
+                </Link>
+            </CardActions>
+        </Card>
     );
 }

@@ -49,7 +49,7 @@ const Asistentes = ({maxHeight}) => {
             <div className="scrollable"
                  style={{flexGrow: 1, overflowY: "auto", padding: 16, minHeight: "200px", maxHeight: maxHeight}}>
                 {asistentes.map((asistente) => (
-                    <Link to={`/Perfil?${asistente.id}`}>
+                    <Link to={`/Perfil?id=${asistente.id}`} key={asistente.id}>
                         <Card key={asistente.id} sx={{
                             marginBottom: 1,
                             display: 'flex',

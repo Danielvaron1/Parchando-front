@@ -14,6 +14,7 @@ import Amigos from "../Components/Perfil/Amigos";
 import Evento from "../Components/Evento/Evento";
 import MensajesIndex from "../Components/Mensajes/MensajesIndex";
 import Chat from "../Components/Mensajes/Chat";
+import Eventos from "../Components/Evento/Eventos";
 
 export const AppRouter = () => {
     return (
@@ -36,6 +37,12 @@ export const AppRouter = () => {
                     }/>
                     <Route path="Evento" element={
                         <Evento/>
+                    }/>
+                    <Route path="Eventos" element={
+                        <Eventos tipo={"eventos"}/>
+                    }/>
+                    <Route path="Mis Eventos" element={
+                        <Eventos tipo={"mis eventos"}/>
                     }/>
                     <Route path="Mensajes" element={
                         <MensajesIndex/>

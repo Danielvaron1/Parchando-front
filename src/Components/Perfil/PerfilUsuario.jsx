@@ -175,7 +175,7 @@ const PerfilUsuario = () => {
                     theme: "dark",
                     transition: Bounce
                 });
-                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud"},token);
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"solicitud",nombre:userData.nombre},token);
                 setUser({...user, amigo: "pendiente"});
             }).catch(e => console.log(e));
     }
@@ -195,7 +195,7 @@ const PerfilUsuario = () => {
                     transition: Bounce
                 });
                 setUser({...user, amigo: "aceptado"});
-                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad"},token);
+                createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad",nombre:userData.nombre},token);
             }).catch(e => console.log(e));
     }
 

@@ -8,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import MailIcon from '@mui/icons-material/Mail';
@@ -32,7 +31,11 @@ import {deepPurple} from "@mui/material/colors";
 import {Logout, Settings, People} from "@mui/icons-material";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import {deleteNotificaciones, getNotificaciones, getUsersParams, readNotificaciones} from "../../Api/UsuariosApi";
+import {deleteNotificaciones, getNotificaciones,  readNotificaciones} from "../../Api/UsuariosApi";
+
+import HomeIcon from '@mui/icons-material/Home';
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import InfoIcon from "@mui/icons-material/Info";
 
 
 const pages = ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'];
@@ -74,15 +77,6 @@ const Header = () => {
         setAnchorNot(event.currentTarget);
         try {
             const fetchedNotificaciones = await readNotificaciones(userData.id, token);
-            for (const noti of fetchedNotificaciones) {
-                if (noti.tipo === "amistad" || noti.tipo === "solicitud") {
-                    const userResponse = await getUsersParams({usuarioId: noti.tipoId}, token);
-                    noti.nombre = userResponse.nombre;
-                } else {
-                    const eventResponse = {titulo: "Carrera"};
-                    noti.nombre = eventResponse.titulo;
-                }
-            }
             setNotif(fetchedNotificaciones);
         } catch (error) {
             console.error("Error al obtener las notificaciones:", error);
@@ -135,9 +129,9 @@ const Header = () => {
                 Amigos
             </MenuItem></Link>
             <Divider variant="middle"/>
-            <Link to={"/"}><MenuItem onClick={handleLogoutClick}>
+            <Link to={"/"}><MenuItem onClick={handleLogoutClick} sx={{ color: "error.main" }}>
                 <ListItemIcon>
-                    <Logout fontSize="small"/>
+                    <Logout color={"error"} fontSize="small"/>
                 </ListItemIcon>
                 Salir
             </MenuItem></Link>
@@ -151,15 +145,17 @@ const Header = () => {
             "cancelado": "El evento fue cancelado",
             "comentario": "Tiene un nuevo comentario",
             "asistente": "Una persona se inscribió a tu evento",
-            "salio": "Una persona se salió de tu evento"
+            "salio": "Una persona se salió de tu evento",
+            "editado": "El evento fue editado",
         };
         const path = {
             "amistad": "/Perfil",
             "solicitud": "/Perfil",
-            "cancelado": "/Evento",
+            "cancelado": "/Eventos",
             "comentario": "/Evento",
             "asistente": "/Evento",
-            "salio": "/Evento"
+            "salio": "/Evento",
+            "editado": "/Evento"
         };
 
         function handleNotificationRead(id) {
@@ -255,38 +251,44 @@ const Header = () => {
         setState(newOpen);
     };
 
+    const listItems = [
+        { text: "Inicio", icon: <HomeIcon />, to: "/" },
+        { text: "Eventos", icon: <CalendarMonthIcon />, to: "/Eventos" },
+        { text: "Mis Eventos", icon: <EventAvailableIcon />, to: "/Mis Eventos" },
+        { text: "Acerca De", icon: <InfoIcon />, to: "/Acerca De" },
+        { text: "Perfil", icon: <Settings />, to: "/PerfilUpdate" },
+        { text: "Amigos", icon: <People />, to: "/Amigos" },
+        { text: "Mensajes", icon: <MailIcon />, to: "/Mensajes" },
+        { text: "Salir", icon: <Logout color={"error"} />, to: "/", isLogout: true }
+    ];
+
     const list = () => (
         <Box
-            sx={{width: 250}}
+            sx={{ width: 250 }}
             role="presentation"
             onClick={toggleDrawer(false)}
             onKeyDown={toggleDrawer(false)}
         >
-            <List>
-                {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
-                            </ListItemIcon>
-                            <ListItemText primary={text}/>
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
-            <Divider/>
-            <List>
-                {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                    <ListItem key={text} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}
-                            </ListItemIcon>
-                            <ListItemText primary={text}/>
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+            {listItems.map((item, index) => (
+                <React.Fragment key={item.text}>
+                    <List>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                component={Link}
+                                to={item.to}
+                                onClick={item.isLogout ? handleLogoutClick : undefined}
+                            >
+                                <ListItemIcon>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={item.text} sx={item.isLogout ? { color: "error.main" } : {}} />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                    {index === 3 && <Divider />}
+                    {index === 6 && <Divider />}
+                </React.Fragment>
+            ))}
         </Box>
     );
 
