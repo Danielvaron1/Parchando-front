@@ -15,6 +15,7 @@ import Evento from "../Components/Evento/Evento";
 import MensajesIndex from "../Components/Mensajes/MensajesIndex";
 import Chat from "../Components/Mensajes/Chat";
 import Eventos from "../Components/Evento/Eventos";
+import {AcercaDe} from "../Views/AcercaDe";
 
 export const AppRouter = () => {
     return (
@@ -49,6 +50,9 @@ export const AppRouter = () => {
                     }/>
                     <Route path="Chat" element={
                         <Chat/>
+                    }/>
+                    <Route path="Acerca De" element={
+                        <AcercaDe/>
                     }/>
                 </Route>
                 <Route path="/auth" element={

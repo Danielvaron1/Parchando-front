@@ -22,12 +22,13 @@ import {Library} from "@googlemaps/js-api-loader";
 import "./Evento.css"
 import {Bounce, toast} from "react-toastify";
 import {useUserContext} from "../../Context/UserContext";
-import {deleteEvento, postEvento, putEvento} from "../../Api/EventosApi";
+import {deleteEvento, getAsistenciasSinUsuarios, postAsistencia, postEvento, putEvento} from "../../Api/EventosApi";
 import {useNavigate} from "react-router-dom";
+import {createNotificacion} from "../../Api/UsuariosApi";
 
 const libs: Library[] = ["core", "maps", "places", "marker"]
 const EventoEditable = ({editable,eventoFetch}) => {
-    const {userData } = useUserContext();
+    const {userData , token} = useUserContext();
     const [map, setMap] = useState(null);
     const [autoComplete, setAutoComplete] = useState(null);
     const theme = useTheme();
@@ -183,6 +184,7 @@ const EventoEditable = ({editable,eventoFetch}) => {
         if (eventoValid) {
             try {
                 const eventoTemp=await postEvento(eventoValid);
+                await postAsistencia(eventoTemp.id, userData.id);
                 toast.success('Evento creado', {
                     position: "top-right",
                     autoClose: 3000,
@@ -206,6 +208,16 @@ const EventoEditable = ({editable,eventoFetch}) => {
         if(eventoValid){
             const {id, ...eventoTemp} = eventoValid;
             try {
+                const asistencias = await getAsistenciasSinUsuarios(evento.id);
+                console.log(asistencias);
+                asistencias.forEach(async (asistente) => {
+                    await createNotificacion({
+                        usuarioId: asistente.usuarioId,
+                        tipoId: evento.id,
+                        tipo: "editado",
+                        nombre: evento.titulo
+                    },token);
+                });
                 await putEvento(id,eventoTemp);
                 toast.success('Evento actualizado', {
                     position: "top-right",
@@ -288,6 +300,16 @@ const EventoEditable = ({editable,eventoFetch}) => {
         handleCloseDelete();
         if (evento) {
             try {
+                const asistencias = await getAsistenciasSinUsuarios(evento.id);
+                console.log(asistencias);
+                asistencias.forEach(async (asistente) => {
+                    await createNotificacion({
+                        usuarioId: asistente.usuarioId,
+                        tipoId: evento.id,
+                        tipo: "cancelado",
+                        nombre: evento.titulo
+                    },token);
+                });
                 await deleteEvento(evento.id);
                 toast.success('Evento eliminado', {
                     position: "top-right",

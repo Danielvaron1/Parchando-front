@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import {red} from '@mui/material/colors';
+import {deepPurple, red} from '@mui/material/colors';
 import {CircularProgress, Stack} from "@mui/material";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -16,9 +16,13 @@ import dayjs from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import {useJsApiLoader} from "@react-google-maps/api";
 import {Library} from "@googlemaps/js-api-loader";
+import {useUserContext} from "../../Context/UserContext";
+import {getUsersParams} from "../../Api/UsuariosApi";
+import IconButton from "@mui/material/IconButton";
 
 const libs: Library[] = ["core", "maps", "places", "marker"];
 export default function CardTemplate({evento}) {
+    const {token} = useUserContext();
     const [resultadoFinal, setResultadoFinal] = useState("");
     const [partesUbicacion, setPartesUbicacion] = useState([]);
     const [map, setMap] = useState(null);
@@ -27,6 +31,7 @@ export default function CardTemplate({evento}) {
         libraries: libs,
         language: 'es',
     });
+    const [user, setUser] = useState({nombre:"Default",id:0});
     const mapRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
@@ -43,10 +48,19 @@ export default function CardTemplate({evento}) {
             if (evento.ubicacion) {
                 setPartesUbicacion(evento.ubicacion.split('/'));
             }
+            getUserEvent();
         }
         setLoading(false);
     }, [evento])
 
+    async function getUserEvent() {
+        try{
+            const userFetch = await getUsersParams({usuarioId: evento.usuarioId}, token);
+            setUser(userFetch);
+        } catch (error) {
+            console.log(error);
+        }
+    }
     useEffect(() => {
         if (isLoaded && partesUbicacion.length > 2 && mapRef.current) {
             const location = {lat: parseFloat(partesUbicacion[1]), lng: parseFloat(partesUbicacion[2])};
@@ -82,9 +96,23 @@ export default function CardTemplate({evento}) {
         <Card sx={{width: 350}}>
             <CardHeader
                 avatar={
-                    <Avatar sx={{bgcolor: red[500]}} aria-label="recipe">
-                        R
-                    </Avatar>
+                    <IconButton
+                        size="large"
+                        component={Link}
+                        to={`/Perfil?id=${user.id}`}
+                        edge="end"
+                        aria-label="account of current user"
+                        aria-haspopup="true"
+                        color="inherit"
+                    >
+                        <Avatar
+                            sx={{bgcolor: deepPurple[400]}}
+                            alt={user.nombre}
+                            src="/static/images/avatar/1.jpg"
+                        >
+                            {user.nombre.charAt(0)}
+                        </Avatar>
+                    </IconButton>
                 }
                 title={evento.titulo}
                 subheader={resultadoFinal}

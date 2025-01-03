@@ -6,37 +6,17 @@ import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 import {useUserContext} from "../../Context/UserContext";
 import {Link} from "react-router-dom";
+import {useEffect} from "react";
+import {getAsistencias} from "../../Api/EventosApi";
 
-const Asistentes = ({maxHeight}) => {
+const Asistentes = ({maxHeight, eventoId, asistencias}) => {
     const {userData} = useUserContext();
     const currentUserInterest = userData.intereses;
-    const [asistentes] = React.useState([
-        {
-            id: 1,
-            name: 'Daniel Alejandro Varón Rojas',
-            description: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-            city: 'Bogotá',
-            interests: ["Restaurantes", "Motociclismo", "Senderismo"],
-            amigo: true
-        },
-        {
-            id: 2,
-            name: 'Pepito Perez',
-            description: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-            city: 'Bogotá',
-            interests: ["Restaurantes", "Motociclismo", "Senderismo"],
-            amigo: true
-        },
-        {
-            id: 3,
-            name: 'Donatelo Angelo',
-            description: 'Descripción para usuario nuevo Describiendo sus pasatiempos.',
-            city: 'Bogotá',
-            interests: ["Restaurantes", "Motociclismo", "Senderismo"],
-            amigo: false
-        }
+    const [asistentes,setAsistentes] = React.useState([]);
 
-    ]);
+    useEffect(() => {
+        setAsistentes(asistencias);
+    }, [asistencias])
 
     return (
         <Stack sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
@@ -48,30 +28,36 @@ const Asistentes = ({maxHeight}) => {
             </Stack>
             <div className="scrollable"
                  style={{flexGrow: 1, overflowY: "auto", padding: 16, minHeight: "200px", maxHeight: maxHeight}}>
-                {asistentes.map((asistente) => (
-                    <Link to={`/Perfil?id=${asistente.id}`} key={asistente.id}>
-                        <Card key={asistente.id} sx={{
+                {asistentes.length === 0 ? (
+                    <Stack sx={{justifyContent: "center", alignItems: "center"}}>
+                        <Typography variant="caption" color={"textPrimary"}>
+                            Aun no hay asistentes
+                        </Typography>
+                    </Stack>
+                ):(
+                    asistentes.map((asistente) => (
+                    <Link to={`/Perfil?id=${asistente.usuario.id}`} key={asistente.usuario.id}>
+                        <Card key={asistente.usuario.id} sx={{
                             marginBottom: 1,
                             display: 'flex',
                             flexDirection: 'row'
                         }}>
-                            <Avatar alt={asistentes.name} sx={{
+                            <Avatar alt={asistente.usuario.nombre} sx={{
                                 bgcolor: deepPurple[400],
-                                marginLeft: asistentes.name === asistente.name ? 0 : 1,
-                                marginRight: asistentes.name === asistente.name ? 1 : 0,
+                                marginLeft: 1,
                                 marginTop: 1
-                            }} src={asistente.avatar}>
-                                {asistente.name.charAt(0).toUpperCase()}
+                            }} src={asistente.usuario.fotos}>
+                                {asistente.usuario.nombre.charAt(0).toUpperCase()}
                             </Avatar>
                             <Stack sx={{
                                 flexGrow: 1,
                                 padding: 1
                             }}>
                                 <Typography variant="body2" color={"textPrimary"}>
-                                    {asistente.name}
+                                    {asistente.usuario.nombre}
                                 </Typography>
-                                <Stack direction="row" spacing={1} sx={{display: {xs: 'none', sm: 'flex'}}}>
-                                    {asistente.interests.map((interest) => {
+                                <Stack direction="row" spacing={1} >
+                                    {asistente.usuario.intereses.map((interest) => {
                                         const isInterestMatched = currentUserInterest.includes(interest);
                                         return (
                                             <Chip
@@ -89,7 +75,7 @@ const Asistentes = ({maxHeight}) => {
                             </Stack>
                         </Card>
                     </Link>
-                ))}
+                )))}
             </div>
             <Divider/>
 

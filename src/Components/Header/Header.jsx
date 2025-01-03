@@ -33,12 +33,13 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import {deleteNotificaciones, getNotificaciones,  readNotificaciones} from "../../Api/UsuariosApi";
 
+import LoginIcon from '@mui/icons-material/Login';
 import HomeIcon from '@mui/icons-material/Home';
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import InfoIcon from "@mui/icons-material/Info";
 
 
-const pages = ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'];
+
 
 const Header = () => {
     const {userData, handleLogout, token} = useUserContext();
@@ -48,6 +49,7 @@ const Header = () => {
     const [state, setState] = React.useState(false);
     const [notif, setNotif] = React.useState([]);
 
+    const pages = userData.nombre ? ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'] : ['Inicio', 'Eventos', 'Acerca De'];
     useEffect(() => {
         const fetchNotificaciones = async () => {
             try {
@@ -251,7 +253,7 @@ const Header = () => {
         setState(newOpen);
     };
 
-    const listItems = [
+    const listItems = userData.nombre ? [
         { text: "Inicio", icon: <HomeIcon />, to: "/" },
         { text: "Eventos", icon: <CalendarMonthIcon />, to: "/Eventos" },
         { text: "Mis Eventos", icon: <EventAvailableIcon />, to: "/Mis Eventos" },
@@ -260,6 +262,11 @@ const Header = () => {
         { text: "Amigos", icon: <People />, to: "/Amigos" },
         { text: "Mensajes", icon: <MailIcon />, to: "/Mensajes" },
         { text: "Salir", icon: <Logout color={"error"} />, to: "/", isLogout: true }
+    ] : [
+        { text: "Inicio", icon: <HomeIcon />, to: "/" },
+        { text: "Eventos", icon: <CalendarMonthIcon />, to: "/Eventos" },
+        { text: "Acerca De", icon: <InfoIcon />, to: "/Acerca De" },
+        { text: "Entrar", icon: <LoginIcon />, to: "/auth" }
     ];
 
     const list = () => (
@@ -312,7 +319,7 @@ const Header = () => {
                                 textDecoration: 'none',
                             }}
                         >
-                            Parchando.com
+                            Parchando
                         </Typography>
                     </Link>
 
@@ -347,16 +354,15 @@ const Header = () => {
                                     textDecoration: 'none',
                                 }}
                             >
-                                Parchando.com
+                                Parchando
                             </Typography>
                         </Link>
                     </Box>
                     <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex', justifyContent: 'center'}}}>
                         {pages.map((page) => (
-                            <Link to={page === "Inicio" ? "/" : `/${page}`} key={page}>
+                            <Link to={page === "Inicio" ? "/" : `/${page}`} key={page} onClick={() => handleItemClick(page)}>
                                 <Button
                                     className={`${activeItem === page ? "active" : ""}`}
-                                    onClick={() => handleItemClick(page)}
                                     sx={{my: 2, color: 'white', display: 'block'}}
                                 >
                                     {page}

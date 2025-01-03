@@ -9,26 +9,39 @@ import IconButton from "@mui/material/IconButton";
 import SendIcon from '@mui/icons-material/Send';
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
-import {getComentarios} from "../../Api/EventosApi";
+import {getComentarios, postComentario} from "../../Api/EventosApi";
+import dayjs from "dayjs";
+import {createNotificacion} from "../../Api/UsuariosApi";
 
-const Comentarios = ({maxHeight, eventoId}) => {
+const Comentarios = ({maxHeight, eventoId, eventoTitulo, asistencias}) => {
     const navigate = useNavigate();
-    const {userData} = useUserContext();
+    const {userData,token} = useUserContext();
     const [messages, setMessages] = React.useState([]);
     const [inputValue, setInputValue] = React.useState("");
+    const [refresh, setRefresh] = React.useState(false);
 
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (inputValue.trim() !== "") {
             const newMessage = {
-                id: messages.length + 1,
+                usuarioId: userData.id,
                 comentario: inputValue,
-                user: {name: "You", avatar: "https://example.com/your-avatar.jpg"}
+                usuarioNombre: userData.nombre
             };
-            setMessages([...messages, newMessage]);
+            await postComentario(eventoId, newMessage);
+            asistencias.forEach(async (asistente) => {
+                await createNotificacion({
+                    usuarioId: asistente.usuario.id,
+                    tipoId: eventoId,
+                    tipo: "comentario",
+                    nombre: eventoTitulo
+                }, token);
+            });
+            setRefresh(true);
             setInputValue("");
         }
     };
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             if (e.shiftKey) {
@@ -45,17 +58,16 @@ const Comentarios = ({maxHeight, eventoId}) => {
         const fetchEventData = async () => {
             try {
                 const comentarios = await getComentarios(eventoId);
-                /*console.log(comentarios);*/
                 setMessages(comentarios);
+                setRefresh(false);
             } catch (error) {
                 console.error("Error fetching event data:", error);
             }
         };
-
         if (eventoId != null) {
             fetchEventData();
         }
-    }, [])
+    }, [eventoId,refresh])
 
     return (
         <Stack sx={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
@@ -116,7 +128,7 @@ const Comentarios = ({maxHeight, eventoId}) => {
                                     ))}
                                 </Typography>
                                 <Typography variant="caption"
-                                            color="textSecondary">{new Date().toLocaleString()}</Typography>
+                                            color="textSecondary">{ dayjs(message.fecha).format('YYYY-MM-DD h:mm A')}</Typography>
                             </Stack>
                             <Avatar alt={message.usuarioNombre} sx={{
                                 bgcolor: deepPurple[400],

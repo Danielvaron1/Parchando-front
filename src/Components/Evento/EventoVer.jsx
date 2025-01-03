@@ -14,24 +14,29 @@ import Comentarios from "../Assets/Comentarios";
 import Asistentes from "../Assets/Asistentes";
 import {useUserContext} from "../../Context/UserContext";
 import {useNavigate} from "react-router-dom";
+import {deleteAsistencia, getAsistencias, postAsistencia} from "../../Api/EventosApi";
+import {Bounce, toast} from "react-toastify";
+import {createNotificacion} from "../../Api/UsuariosApi";
 
 const libs: Library[] = ["core", "maps", "places", "marker"];
 
 const EventoVer = ({eventoFetch}) => {
     const eventDetailsRef = useRef(null);
-    const {userData} = useUserContext();
+    const {userData, token} = useUserContext();
 
     const [loading, setLoading] = useState(true);
     const [evento, setEvento] = useState(null);
     const [partesUbicacion, setPartesUbicacion] = useState([]);
     const [resultadoFinal, setResultadoFinal] = useState("");
     const navigate = useNavigate();
+    const [asistentes, setAsistentes] = useState([]);
 
     dayjs.extend(localeData);
     dayjs.locale('es');
 
     useEffect(() => {
         if (eventoFetch) {
+            getAsistenciasFetch();
             const fechaCompleta = dayjs(eventoFetch.fecha);
             setEvento({
                 usuarioId: eventoFetch.usuarioId,
@@ -52,6 +57,15 @@ const EventoVer = ({eventoFetch}) => {
         }
     }, [eventoFetch]);
 
+    async function getAsistenciasFetch() {
+        try {
+            const asistencias = await getAsistencias(eventoFetch.id, token);
+            setAsistentes(asistencias);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 
     const capitalizarDiasYMeses = (str) => {
         return str.split(' ').map((palabra) => {
@@ -66,8 +80,41 @@ const EventoVer = ({eventoFetch}) => {
     };
 
 
-    function handleAsistirEvent() {
-        return;
+    async function handleAsistirEvent() {
+        try {
+            if (usuarioAsistente) {
+                await deleteAsistencia(evento.id, userData.id);
+                await createNotificacion({usuarioId:evento.usuarioId,tipoId:evento.id,tipo:"salio",nombre:evento.titulo},token);
+                toast.error('Saliste del evento '+evento.titulo, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            } else{
+                await postAsistencia(evento.id, userData.id);
+                await createNotificacion({usuarioId:evento.usuarioId,tipoId:evento.id,tipo:"asistente",nombre:evento.titulo},token);
+                toast.success('Asistirás al evento '+evento.titulo, {
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce
+                });
+            }
+            getAsistenciasFetch();
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     const [map, setMap] = useState(null);
@@ -138,6 +185,10 @@ const EventoVer = ({eventoFetch}) => {
         return <p>Cargando...</p>;
     }
 
+    const fechaActual = dayjs();
+    const usuarioAsistente = asistentes.some(asistente => asistente.usuario.id === userData.id);
+    const totalAsistentes = asistentes.length;
+
     return (
         <Stack>
             <Stack direction={{xs: 'column', sm: 'row'}} ref={eventDetailsRef} sx={{
@@ -160,7 +211,8 @@ const EventoVer = ({eventoFetch}) => {
                         <Button
                             variant="contained"
                             onClick={handleAsistirEvent}
-                            sx={{backgroundColor: deepPurple[400],display: {xs: 'flex', sm: 'none'}}}
+                            disabled={fechaActual.isAfter(evento.fecha)}
+                            sx={{backgroundColor: deepPurple[400], display: {xs: 'flex', sm: 'none'}}}
                         >
                             Asistiré
                         </Button>
@@ -168,13 +220,23 @@ const EventoVer = ({eventoFetch}) => {
                         <Button
                             variant="contained"
                             onClick={handleEditEvent}
-                            sx={{backgroundColor: deepPurple[400],display: {xs: 'flex', sm: 'none'}}}
+                            sx={{backgroundColor: deepPurple[400], display: {xs: 'flex', sm: 'none'}}}
                         >
                             Editar
                         </Button>
                     )}
                     <Typography color={"textPrimary"} variant={"body2"}
                                 style={{whiteSpace: 'pre-line'}}>{evento.descripcion}</Typography>
+                    <Stack sx={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        flexGrow: 1,
+                        marginTop: 2,
+                        overflow: 'hidden',
+                        display: "row"
+                    }}>
+                        <Typography color={"textPrimary"} variant={"h6"}>{totalAsistentes} Asistentes</Typography>
+                    </Stack>
                 </Stack>
                 <Stack sx={{width: {xs: 350, md: 400}, maxWidth: '100%'}} direction={"column"}>
                     <Stack direction={"row"} sx={{
@@ -188,9 +250,10 @@ const EventoVer = ({eventoFetch}) => {
                             <Button
                                 variant="contained"
                                 onClick={handleAsistirEvent}
+                                disabled={fechaActual.isAfter(evento.fecha) || userData.nombre === ""}
                                 sx={{backgroundColor: deepPurple[400]}}
                             >
-                                Asistiré
+                                {usuarioAsistente ? "No Asistiré" : "Asistiré"}
                             </Button>
                         ) : (
                             <Button
@@ -211,22 +274,26 @@ const EventoVer = ({eventoFetch}) => {
                         }
                     </Stack>
                 </Stack>
+
             </Stack>
             <Divider variant={"middle"}></Divider>
-            <Stack direction={{xs: 'column', sm: 'row'}} sx={{
-                justifyContent: "space-evenly",
-                alignItems: "center",
-                flexGrow: 1,
-                overflow: 'hidden'
-            }}>
-                <Stack sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
-                    <Comentarios maxHeight={`calc(100vh - ${eventDetailsHeight}px - 210px)`} eventoId={evento.id} />
+            {usuarioAsistente && (
+                <Stack direction={{xs: 'column', sm: 'row'}} sx={{
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    flexGrow: 1,
+                    overflow: 'hidden'
+                }}>
+                    <Stack sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
+                        <Comentarios maxHeight={`calc(100vh - ${eventDetailsHeight}px - 210px)`} eventoId={evento.id} eventoTitulo={evento.titulo} asistencias={asistentes}/>
+                    </Stack>
+                    <Divider orientation="vertical" flexItem/>
+                    <Stack sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
+                        <Asistentes maxHeight={`calc(100vh - ${eventDetailsHeight}px - 163px)`} eventoId={evento.id}
+                                    asistencias={asistentes}/>
+                    </Stack>
                 </Stack>
-                <Divider orientation="vertical" flexItem/>
-                <Stack sx={{width: {xs: 350, md: "50vh"}, flexGrow: 1}}>
-                    <Asistentes maxHeight={`calc(100vh - ${eventDetailsHeight}px - 163px)`}/>
-                </Stack>
-            </Stack>
+            )}
         </Stack>
     );
 }

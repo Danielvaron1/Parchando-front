@@ -12,6 +12,8 @@
     return { asistencias, users };
 }*/
 
+import {getUsersParams} from "./UsuariosApi";
+
 const eventsPath="Eventos";
 const comentPath="Comentarios";
 const asistPath="Asistencias";
@@ -29,6 +31,26 @@ async function getEventos({usuarioId, ciudad}) {
         params.append('ciudad', ciudad);
     }
     const data = await fetch(`${eventsURL}${eventsPath}?${params.toString()}`, {
+        method: 'GET',
+    });
+
+    if (!data.ok) {
+        throw new Error('Error en la solicitud: ' + data.statusText);
+    }
+
+    return await data.json();
+}
+
+async function getEventosDate({usuarioId, ciudad}) {
+    const params = new URLSearchParams();
+
+    if (usuarioId) {
+        params.append('usuarioId', usuarioId);
+    }
+    if (ciudad) {
+        params.append('ciudad', ciudad);
+    }
+    const data = await fetch(`${eventsURL}${eventsPath}/Date?${params.toString()}`, {
         method: 'GET',
     });
 
@@ -110,16 +132,49 @@ async function deleteEvento (id) {
 
 //Asistencias
 
-async function getAsistencias(id) {
+async function getAsistencias(id,token) {
 
     const data = await fetch(`${eventsURL}${eventsPath}/${id}/${asistPath}`, {
         method: 'GET',
     });
 
+
     if (!data.ok) {
         throw new Error('Error en la solicitud: ' + data.statusText);
     }
+
     const asistencias = await data.json();
+
+    const usuarioIds = asistencias.map(asistencia => asistencia.usuarioId);
+
+    const userPromises = usuarioIds.map(usuarioId => getUsersParams({ usuarioId:usuarioId }, token));
+
+    const users = await Promise.all(userPromises);
+
+    const asistenciasConUsuarios = asistencias.map(asistencia => {
+        const usuario = users.find(user => user.id === asistencia.usuarioId);
+        return {
+            ...asistencia,
+            usuario
+        };
+    });
+
+    return asistenciasConUsuarios
+}
+
+async function getAsistenciasSinUsuarios(id) {
+
+    const data = await fetch(`${eventsURL}${eventsPath}/${id}/${asistPath}`, {
+        method: 'GET',
+    });
+
+
+    if (!data.ok) {
+        throw new Error('Error en la solicitud: ' + data.statusText);
+    }
+
+    const asistencias = await data.json();
+
     return asistencias
 }
 
@@ -200,8 +255,10 @@ export {
     getAsistencias,
     postAsistencia,
     deleteAsistencia,
+    getAsistenciasSinUsuarios,
 
     getComentarios,
-    postComentario
+    postComentario,
+    getEventosDate
 
 }
