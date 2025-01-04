@@ -207,7 +207,7 @@ const EventoVer = ({eventoFetch}) => {
                             <span>Precio del evento: ${evento.precio}</span>
                         )}
                     </Typography>
-                    {userData.id != evento.usuarioId ? (
+                    {userData.id !== evento.usuarioId ? (
                         <Button
                             variant="contained"
                             onClick={handleAsistirEvent}
@@ -246,7 +246,7 @@ const EventoVer = ({eventoFetch}) => {
                         alignItems: "center",
                         display: {xs: 'none', sm: 'flex'}
                     }}>
-                        {userData.id != evento.usuarioId ? (
+                        {userData.id !== evento.usuarioId ? (
                             <Button
                                 variant="contained"
                                 onClick={handleAsistirEvent}

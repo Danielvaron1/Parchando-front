@@ -84,7 +84,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
             <CardHeader
                 avatar={
                     <Avatar alt={user.nombre} sx={{bgcolor: deepPurple[400]}} aria-label="recipe"
-                            src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jp">
+                            src={user.fotos}>
                         {user.nombre.charAt(0).toUpperCase()}
                     </Avatar>
                 }

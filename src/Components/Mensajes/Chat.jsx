@@ -61,7 +61,7 @@ const Chat = () => {
                     <Avatar
                         sx={{bgcolor: deepPurple[400], width: 30, height: 30, marginRight:1}}
                         alt={userData.nombre}
-                        src="/static/images/avatar/1.jpg"
+                        src={userData.fotos}
                     >
                         {userData.nombre.charAt(0)}
                     </Avatar>

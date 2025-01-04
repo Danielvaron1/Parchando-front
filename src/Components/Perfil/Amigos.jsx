@@ -32,6 +32,7 @@ const Amigos = () => {
                     descripcion: amigo.usuario2.descripcion,
                     ciudad: amigo.usuario2.ciudad,
                     intereses: amigo.usuario2.intereses,
+                    fotos: amigo.usuario2.fotos,
                     amigo: amigo.estado
                 }));
                 setUsers(mappedUsers);

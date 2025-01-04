@@ -25,6 +25,8 @@ import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {putPwdUser, putUser} from "../../Api/UsuariosApi";
+import AWS from 'aws-sdk';
+
 
 const intereses = [
     "Viajar", "Musica", "Bicicleta", "Cine", "Museos",
@@ -58,6 +60,64 @@ const Perfil = () => {
         city: false,
         interests: false
     });
+
+    const s3 = new AWS.S3({
+        accessKeyId: process.env.REACT_APP_AWS_KEY,
+        secretAccessKey: process.env.REACT_APP_AWS_SECRET,
+        region: process.env.REACT_APP_AWS_REGION,
+    });
+
+    async function updateImage(file) {
+        const params = {
+            Bucket: 'parchando-usuarios',
+            Key: `photos/${userData.id}-${file.name}`,
+            Body: file,
+            ContentType: file.type,
+        };
+        console.log(file.type)
+        try {
+            const data = await s3.upload(params).promise();
+            const formattedInterests = userData.intereses.map(interest => `'${interest}'`).join(',');
+            const userUpdate = {
+                nombre: userData.nombre,
+                correo: userData.correo,
+                fechaNacimiento: userData.fechaNacimiento,
+                telefono: userData.telefono,
+                contrasena: "null",
+                descripcion: userData.descripcion,
+                ciudad: userData.ciudad,
+                intereses: formattedInterests,
+                fotos: data.Location,
+            }
+            const userUpdated= await putUser(userData.id,userUpdate, token);
+            toast.success('Foto actualizada', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce
+            });
+            setUserData(userUpdated);
+
+        } catch (err) {
+            console.error(err);
+            toast.error('Error al subir la imagen', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce
+            });
+        }
+    }
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -219,13 +279,12 @@ const Perfil = () => {
                     <Avatar
                         sx={{width: {xs: 100, md: 150}, height: {xs: 100, md: 150}, bgcolor: deepPurple[400]}}
                         alt={userData.nombre}
-                        src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jpg"
+                        src={userData.fotos}
                     >
                         <Typography sx={{
                             fontSize: {xs: '2rem', md: '3rem'}
                         }}>
-                            A
-                            {/*{userData.nombre.charAt(0).toUpperCase()}*/}
+                            {userData.nombre.charAt(0).toUpperCase()}
                         </Typography>
                     </Avatar>
                 </IconButton>
@@ -250,7 +309,25 @@ const Perfil = () => {
                             <VisuallyHiddenInput
                                 id="profile-image-input"
                                 type="file"
-                                onChange={(event) => console.log(event.target.files)}
+                                accept="image/*"
+                                onChange={async (event) => {
+                                    const file = event.target.files[0];
+                                    if (file && file.type.startsWith('image/')) {
+                                        await updateImage(file);
+                                    } else {
+                                        toast.error('Por favor, selecciona un archivo de imagen válido.', {
+                                            position: "top-right",
+                                            autoClose: 3000,
+                                            hideProgressBar: false,
+                                            closeOnClick: true,
+                                            pauseOnHover: true,
+                                            draggable: true,
+                                            progress: undefined,
+                                            theme: "dark",
+                                            transition: Bounce
+                                        });
+                                    }
+                                }}
                                 multiple
                             />
                         </Button>

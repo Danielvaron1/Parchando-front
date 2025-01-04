@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import {Link} from "react-router-dom";
 import EventIcon from '@mui/icons-material/Event';
 import HistoryIcon from '@mui/icons-material/History';
+import Typography from "@mui/material/Typography";
 
 export default function Eventos({tipo}) {
     const {userData} = useUserContext();
@@ -88,6 +89,16 @@ export default function Eventos({tipo}) {
             {loading ? (
                 <Stack direction="row" justifyContent="center" sx={{marginTop: '20px'}}>
                     <CircularProgress color="secondary"/>
+                </Stack>
+            ) : eventos.length === 0 ? (
+                <Stack sx={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop:4
+                }}>
+                    <Typography color={"textPrimary"} variant={"h6"}>
+                        No hay eventos disponibles
+                    </Typography>
                 </Stack>
             ) : (
                 <Stack direction="row" spacing={2}

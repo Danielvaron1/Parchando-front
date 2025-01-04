@@ -31,12 +31,13 @@ import {deepPurple} from "@mui/material/colors";
 import {Logout, Settings, People} from "@mui/icons-material";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import {deleteNotificaciones, getNotificaciones,  readNotificaciones} from "../../Api/UsuariosApi";
+import {deleteNotificaciones, getNotificaciones, getUsersParams, readNotificaciones} from "../../Api/UsuariosApi";
 
 import LoginIcon from '@mui/icons-material/Login';
 import HomeIcon from '@mui/icons-material/Home';
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import InfoIcon from "@mui/icons-material/Info";
+import PersonIcon from "@mui/icons-material/Person";
 
 
 
@@ -48,6 +49,8 @@ const Header = () => {
     const [activeItem, setActiveItem] = useState("");
     const [state, setState] = React.useState(false);
     const [notif, setNotif] = React.useState([]);
+
+    const [userPhotos, setUserPhotos] = useState({});
 
     const pages = userData.nombre ? ['Inicio', 'Eventos', 'Mis Eventos', 'Acerca De'] : ['Inicio', 'Eventos', 'Acerca De'];
     useEffect(() => {
@@ -62,6 +65,25 @@ const Header = () => {
 
         fetchNotificaciones();
     }, []);
+
+    useEffect(() => {
+        const fetchUserPhotos = async () => {
+            const userPhotosMap = {};
+            for (const noti of notif) {
+                if (noti.tipo === "amistad" || noti.tipo === "solicitud") {
+                    try {
+                        const fetchedUser  = await getUsersParams({ usuarioId: noti.tipoId }, token);
+                        userPhotosMap[noti.id] = fetchedUser.fotos;
+                    } catch (error) {
+                        console.error("Error al obtener el usuario:", error);
+                    }
+                }
+            }
+            setUserPhotos(userPhotosMap);
+        };
+
+        fetchUserPhotos();
+    }, [notif]);
 
 
     const handleItemClick = (item) => {
@@ -118,6 +140,12 @@ const Header = () => {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
+            <Link to={"/Perfil?id="+userData.id}><MenuItem onClick={handleMenuClose}>
+                <ListItemIcon>
+                    <PersonIcon fontSize="small"/>
+                </ListItemIcon>
+                Mi Perfil
+            </MenuItem></Link>
             <Link to={"/PerfilUpdate"}><MenuItem onClick={handleMenuClose}>
                 <ListItemIcon>
                     <Settings fontSize="small"/>
@@ -176,7 +204,7 @@ const Header = () => {
                                 <Avatar
                                     sx={{bgcolor: deepPurple[400]}}
                                     alt={noti.nombre}
-                                    src="/static/images/avatar/1.jpg"
+                                    src={userPhotos[noti.id]}
                                 />
                             </ListItemAvatar>
                         ) : (
@@ -258,6 +286,7 @@ const Header = () => {
         { text: "Eventos", icon: <CalendarMonthIcon />, to: "/Eventos" },
         { text: "Mis Eventos", icon: <EventAvailableIcon />, to: "/Mis Eventos" },
         { text: "Acerca De", icon: <InfoIcon />, to: "/Acerca De" },
+        { text: "Mi Perfil", icon: <PersonIcon />, to: "/PerfilUpdate" },
         { text: "Perfil", icon: <Settings />, to: "/PerfilUpdate" },
         { text: "Amigos", icon: <People />, to: "/Amigos" },
         { text: "Mensajes", icon: <MailIcon />, to: "/Mensajes" },
@@ -293,7 +322,7 @@ const Header = () => {
                         </ListItem>
                     </List>
                     {index === 3 && <Divider />}
-                    {index === 6 && <Divider />}
+                    {index === 7 && <Divider />}
                 </React.Fragment>
             ))}
         </Box>
@@ -402,7 +431,7 @@ const Header = () => {
                                     <Avatar
                                         sx={{bgcolor: deepPurple[400]}}
                                         alt={userData.nombre}
-                                        src="/static/images/avatar/1.jpg"
+                                        src={userData.fotos}
                                     >
                                         {userData.nombre.charAt(0)}
                                     </Avatar>

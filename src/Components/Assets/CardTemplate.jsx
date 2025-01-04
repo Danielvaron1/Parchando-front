@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import {deepPurple, red} from '@mui/material/colors';
+import {deepPurple} from '@mui/material/colors';
 import {CircularProgress, Stack} from "@mui/material";
 import {Link} from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -31,7 +31,7 @@ export default function CardTemplate({evento}) {
         libraries: libs,
         language: 'es',
     });
-    const [user, setUser] = useState({nombre:"Default",id:0});
+    const [user, setUser] = useState({nombre:"Default",id:0,fotos:""});
     const mapRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
@@ -108,7 +108,7 @@ export default function CardTemplate({evento}) {
                         <Avatar
                             sx={{bgcolor: deepPurple[400]}}
                             alt={user.nombre}
-                            src="/static/images/avatar/1.jpg"
+                            src={user.fotos}
                         >
                             {user.nombre.charAt(0)}
                         </Avatar>

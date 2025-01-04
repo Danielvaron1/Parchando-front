@@ -11,7 +11,7 @@ import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import {getComentarios, postComentario} from "../../Api/EventosApi";
 import dayjs from "dayjs";
-import {createNotificacion} from "../../Api/UsuariosApi";
+import {createNotificacion, getUsersParams} from "../../Api/UsuariosApi";
 
 const Comentarios = ({maxHeight, eventoId, eventoTitulo, asistencias}) => {
     const navigate = useNavigate();
@@ -58,7 +58,14 @@ const Comentarios = ({maxHeight, eventoId, eventoTitulo, asistencias}) => {
         const fetchEventData = async () => {
             try {
                 const comentarios = await getComentarios(eventoId);
-                setMessages(comentarios);
+                const comentariosConFotos = await Promise.all(comentarios.map(async (comentario) => {
+                    const user = await getUsersParams({ usuarioId: comentario.usuarioId }, token);
+                    return {
+                        ...comentario,
+                        usuarioFoto: user.fotos
+                    };
+                }));
+                setMessages(comentariosConFotos);
                 setRefresh(false);
             } catch (error) {
                 console.error("Error fetching event data:", error);
@@ -138,7 +145,7 @@ const Comentarios = ({maxHeight, eventoId, eventoTitulo, asistencias}) => {
                                 cursor: "pointer"
                             }} onClick={() => {
                                 navigate("/Perfil?id=" + message.usuarioId)
-                            }} src={message.usuarioNombre}>
+                            }} src={message.usuarioFoto}>
                                 {message.usuarioNombre.charAt(0).toUpperCase()}
                             </Avatar>
 
