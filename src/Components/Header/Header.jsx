@@ -404,7 +404,7 @@ const Header = () => {
                             <Box>
                                 <IconButton size="large" aria-label="show 4 new mails" color="inherit" to={"/Mensajes"}
                                             component={Link}>
-                                    <Badge color="secondary" variant="dot" invisible={false}>
+                                    <Badge color="secondary" variant="dot" invisible={true}>
                                         <MailIcon/>
                                     </Badge>
                                 </IconButton>
@@ -438,7 +438,7 @@ const Header = () => {
                                 </IconButton>
                             </Box>
                         ) : (
-                            <Button href={"/auth"} variant="contained" className={"login"}>
+                            <Button to={"/auth"} component={Link} variant="contained" className={"login"}>
                                 Entrar
                             </Button>
                         )}

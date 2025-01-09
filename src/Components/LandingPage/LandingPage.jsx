@@ -14,8 +14,11 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import {Link} from "react-router-dom";
+import {useUserContext} from "../../Context/UserContext";
 
 export const LandingPage = () => {
+    const {userData} = useUserContext();
 
     const data = [
         {
@@ -103,14 +106,26 @@ export const LandingPage = () => {
                         <Typography variant="h6">
                             <span style={{fontWeight: 'bold',color: 'blue'}}>Vive.</span> No simplemente existas.
                         </Typography>
-                        <Button href={"/auth"} variant="contained"
-                                sx={{textTransform: "none", marginTop: 1, background: deepPurple[400]}}>
-                            <Typography variant="h4" component="span" sx={{
-                                fontSize: {xs: '1.5rem', sm: '2rem'} // Cambia el tamaño de la fuente según el breakpoint
-                            }}>
-                                Unete a <span style={{fontFamily: '"Comforter Brush", cursive'}}>Parchando</span>
-                            </Typography>
-                        </Button>
+                        {userData.id==="" ?(
+                            <Button to={"/auth"} component={Link} variant="contained"
+                                    sx={{textTransform: "none", marginTop: 1, background: deepPurple[400]}}>
+                                <Typography variant="h4" component="span" sx={{
+                                    fontSize: {xs: '1.5rem', sm: '2rem'}
+                                }}>
+                                    Unete a <span style={{fontFamily: '"Comforter Brush", cursive'}}>Parchando</span>
+                                </Typography>
+                            </Button>
+                        ):(
+                            <Button to={"/Evento"} component={Link} variant="contained"
+                                    sx={{textTransform: "none", marginTop: 1, background: deepPurple[400]}}>
+                                <Typography variant="h4" component="span" sx={{
+                                    fontSize: {xs: '1.5rem', sm: '2rem'}
+                                }}>
+                                    Crea un evento
+                                </Typography>
+                            </Button>
+                        )}
+
                     </Stack>
                 </Grid>
                 <Grid size={{xs: 11, md: 4}} sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>

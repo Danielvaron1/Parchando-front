@@ -1,12 +1,12 @@
 import React, { useEffect, useState} from 'react';
 import './Form.css';
-import { Button, Link} from "@nextui-org/react";
+import { Button} from "@nextui-org/react";
 import Password from "../Assets/Password";
 import InputForm from "../Assets/InputForm";
 import {getUsersParams, postLogin} from "../../Api/UsuariosApi";
 import {Bounce, toast} from "react-toastify";
 import {useUserContext} from "../../Context/UserContext";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const Form = () => {
     const {setUserData,setToken} = useUserContext();
@@ -69,7 +69,7 @@ const Form = () => {
                 <br/>
 
                 <br/>
-                <Link href="#" underline="always" color="secondary" className="align-right">¿Has olvidado tu
+                <Link href="#" underline="always" color="secondary" className="align-right" className={"link"}>¿Has olvidado tu
                     contraseña?</Link>
                 <br/>
                 <br/>
@@ -80,7 +80,7 @@ const Form = () => {
                 </Button>
                 <br/>
                 <br/>
-                <p>¿No tienes cuenta? <Link href="/auth/registro" underline="always" color="secondary">Registrate</Link></p>
+                <p>¿No tienes cuenta? <Link to="/auth/registro" underline="always" className={"link"} >Registrate</Link></p>
             </form>
         </div>
     );

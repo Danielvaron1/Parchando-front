@@ -439,10 +439,10 @@ async function createConversacion({usuario1,usuario2},token){
 }
 
 
-async function updateConversacion({usuario1,mensaje},token){
+async function updateConversacion({id,mensaje},token){
     try {
 
-        const data = await fetch(`${usersURL}${convPath}/${usuario1}?ultimoMensaje=${mensaje}`, {
+        const data = await fetch(`${usersURL}${convPath}/${id}?ultimoMensaje=${mensaje}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

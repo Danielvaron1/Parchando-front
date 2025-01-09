@@ -11,7 +11,7 @@ import SendIcon from '@mui/icons-material/Send';
 import {io} from "socket.io-client";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useEffect} from "react";
-import {getConversacionId} from "../../Api/UsuariosApi";
+import {getConversacionId, updateConversacion} from "../../Api/UsuariosApi";
 import CircularProgress from '@mui/material/CircularProgress';
 
 const Chat = () => {
@@ -74,7 +74,7 @@ const Chat = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (inputValue.trim() !== "") {
             const newMessage = {
                 mensaje: inputValue,
@@ -83,6 +83,7 @@ const Chat = () => {
                 hora: new Date(Date.now()),
             };
             socketRef.current.emit("send_message", newMessage);
+            await updateConversacion({id: conversacion.id, mensaje: inputValue}, token);
             setInputValue("");
         }
     };

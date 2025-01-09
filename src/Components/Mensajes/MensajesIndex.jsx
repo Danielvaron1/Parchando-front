@@ -43,9 +43,17 @@ const MensajesIndex = () => {
                                 <ListItemText
                                     primary={conversacion.usuario2.nombre}
                                     secondary={
-                                        <React.Fragment>
+                                        <Typography variant="body2" sx={{
+                                            color: 'text.secondary',
+                                            display: '-webkit-box',
+                                            overflow: 'hidden',
+                                            WebkitBoxOrient: 'vertical',
+                                            WebkitLineClamp: 1,
+                                            height: '1.2em',
+                                            textOverflow: 'ellipsis'
+                                        }}>
                                             {" ~ " + conversacion.ultimoMensaje}
-                                        </React.Fragment>
+                                        </Typography>
                                     }
                                 />
                                 <ListItemSecondaryAction>

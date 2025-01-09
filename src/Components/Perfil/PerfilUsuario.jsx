@@ -32,6 +32,7 @@ import {
 } from "../../Api/UsuariosApi";
 import {getEventos, getEventosDate} from "../../Api/EventosApi";
 import CardTemplate from "../Assets/CardTemplate";
+import {Link} from "react-router-dom";
 
 
 const PerfilUsuario = () => {
@@ -291,11 +292,11 @@ const PerfilUsuario = () => {
                             }}>
                                 <Button
                                     sx={{marginLeft: 2, marginRight: {xs: 2, md: 0}, background: deepPurple[400]}}
-                                    component="label"
+                                    component={Link}
                                     role={undefined}
                                     variant="contained"
                                     startIcon={<EditIcon/>}
-                                    onClick={handleEnviarSolicitud}
+                                    to={"/PerfilUpdate"}
                                 >
                                     Editar
                                 </Button>

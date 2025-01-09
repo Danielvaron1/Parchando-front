@@ -68,9 +68,6 @@ export const AppRouter = () => {
                     <Route path="registro-ciudad" element={
                         <RegistroCiudad class="form-container item item-2"/>
                     }/>
-                    <Route path="registro-ciudad" element={
-                        <RegistroCiudad class="form-container item item-2"/>
-                    }/>
                     <Route path="registro-intereses" element={
                         <RegistroIntereses class="form-container item item-2"/>
                     }/>

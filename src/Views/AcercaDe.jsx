@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid2';
 import Button from "@mui/material/Button";
 import * as React from "react";
 import {deepPurple} from "@mui/material/colors";
+import {Link} from "react-router-dom";
 
 const itemData = [
     {
@@ -116,7 +117,7 @@ export const AcercaDe = () => {
                 <Typography variant={isSmallScreen ? "h5" : "subtitle1"}>
                     Así que arriésgate y simplemente di:
                 </Typography>
-                <Button href={"/auth"} variant="contained" sx={{ textTransform: "none" , marginTop:1, background:deepPurple[400]}}>
+                <Button to={"/auth"} component={Link} variant="contained" sx={{ textTransform: "none" , marginTop:1, background:deepPurple[400]}}>
                     <Typography variant="h4" component="span" sx={{fontFamily: '"Comforter Brush", cursive'}}>
                         ¿Parchamos?
                     </Typography>
