@@ -7,7 +7,6 @@ import RegistroCiudad from "../Components/Registro-Form/Registro-Ciudad";
 import RegistroIntereses from "../Components/Registro-Form/Registro-Intereses";
 import {AuthLayout} from "../Views/AuthLayout";
 import {Landing} from "../Views/Landing";
-import CardTemplate from "../Components/Assets/CardTemplate";
 import Perfil from "../Components/Perfil/Perfil";
 import PerfilUsuario from "../Components/Perfil/PerfilUsuario";
 import Amigos from "../Components/Perfil/Amigos";
@@ -16,6 +15,8 @@ import MensajesIndex from "../Components/Mensajes/MensajesIndex";
 import Chat from "../Components/Mensajes/Chat";
 import Eventos from "../Components/Evento/Eventos";
 import {AcercaDe} from "../Views/AcercaDe";
+import {LandingPage} from "../Components/LandingPage/LandingPage";
+import {NotFound} from "../Components/LandingPage/NotFound";
 
 export const AppRouter = () => {
     return (
@@ -25,7 +26,7 @@ export const AppRouter = () => {
                     <Landing/>
                 }>
                     <Route path="" element={
-                        <CardTemplate/>
+                        <LandingPage/>
                     }/>
                     <Route path="PerfilUpdate" element={
                         <Perfil/>
@@ -48,7 +49,7 @@ export const AppRouter = () => {
                     <Route path="Mensajes" element={
                         <MensajesIndex/>
                     }/>
-                    <Route path="Chat" element={
+                    <Route path="Chat/:id" element={
                         <Chat/>
                     }/>
                     <Route path="Acerca De" element={
@@ -75,7 +76,7 @@ export const AppRouter = () => {
                     }/>
                 </Route>
                 <Route path="*" element={
-                    <Landing/>
+                    <NotFound/>
                 }/>
             </Routes>
         </BrowserRouter>

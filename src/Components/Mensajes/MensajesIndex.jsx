@@ -1,32 +1,61 @@
-import {Divider, ListItem, ListItemAvatar, ListItemText, Stack} from "@mui/material";
+import {Divider, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Stack} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import * as React from 'react';
 import {deepPurple} from "@mui/material/colors";
 import {Link} from "react-router-dom";
+import {useEffect} from "react";
+import {getConversaciones} from "../../Api/UsuariosApi";
+import {useUserContext} from "../../Context/UserContext";
+import Typography from "@mui/material/Typography";
+
 
 
 const MensajesIndex = () => {
+    const {userData,token} = useUserContext();
+    const [conversaciones, setConversaciones] = React.useState([]);
+
+    useEffect(() => {
+        getUsuarioConversaciones();
+    }, []);
+
+    async function getUsuarioConversaciones() {
+        const conv = await getConversaciones(userData.id, token);
+        setConversaciones(conv);
+    }
+
     return (
         <Stack>
             <div className="scrollable" style={{flexGrow: 1, overflowY: "auto", padding: 16, height: "90vh"}}>
-                <ListItem alignItems="flex-start" to={"/Chat"} component={Link} button>
-                    <ListItemAvatar>
-                        <Avatar alt={"user.name"} sx={{bgcolor: deepPurple[400]}} aria-label="recipe"
-                                src="https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/images-in-html/dinosaur_small.jp">
-                            A
-                            {/*{user.name.charAt(0).toUpperCase()}*/}
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                        primary="Dante Varón"
-                        secondary={
-                            <React.Fragment>
-                                {" — I'll be in your neighborhood doing errands this…"}
-                            </React.Fragment>
-                        }
-                    />
-                </ListItem>
-                <Divider variant="middle"/>
+                {conversaciones.length === 0 ? (
+                    <Typography variant="h6" color="textSecondary" align="center">
+                        No tienes mensajes
+                    </Typography>
+                ) : (
+                    conversaciones.map((conversacion, index) => (
+                        <div key={index}>
+                            <ListItem alignItems="flex-start" to={`/Chat/${conversacion.id}`} component={Link} button>
+                                <ListItemAvatar>
+                                    <Avatar alt={conversacion.usuario2.nombre} sx={{ bgcolor: deepPurple[400] }} aria-label="recipe"
+                                            src={conversacion.usuario2.fotos}>
+                                        {conversacion.usuario2.nombre.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={conversacion.usuario2.nombre}
+                                    secondary={
+                                        <React.Fragment>
+                                            {" ~ " + conversacion.ultimoMensaje}
+                                        </React.Fragment>
+                                    }
+                                />
+                                <ListItemSecondaryAction>
+                                    <Typography variant={"caption"} color={"textSecondary"}>{conversacion.fecha}</Typography>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                            <Divider variant="middle" />
+                        </div>
+                    ))
+                )}
 
 
             </div>

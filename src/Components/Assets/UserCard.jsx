@@ -13,19 +13,27 @@ import {
 } from "@mui/material";
 import PersonIcon from '@mui/icons-material/Person';
 import ChatIcon from '@mui/icons-material/Chat';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import {acceptAmigos, createAmigos, createNotificacion, deleteAmigos} from "../../Api/UsuariosApi";
+import {
+    acceptAmigos,
+    createAmigos,
+    createConversacion,
+    createNotificacion,
+    deleteAmigos,
+    getConversacion
+} from "../../Api/UsuariosApi";
 import {Bounce, toast} from "react-toastify";
 import {useUserContext} from "../../Context/UserContext";
 
 const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose, handleClickOpenDelete}) => {
     const {userData, token} = useUserContext();
+    const navigate = useNavigate();
     const handleCancelSol = () => {
         deleteAmigos(userData.id, user.id, token)
             .then(() => {
@@ -77,6 +85,14 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                 });
                 createNotificacion({usuarioId:user.id,tipoId:userData.id,tipo:"amistad",nombre:userData.nombre},token);
             });
+    }
+
+    async function handleMensajeButton() {
+        let conversacion = await getConversacion({usuario2: userData.id, usuario1: user.id}, token);
+        if(!conversacion){
+            conversacion = await createConversacion({usuario1: userData.id, usuario2: user.id}, token);
+        }
+        navigate(`/Chat/${conversacion.id}`);
     }
 
     return (
@@ -143,6 +159,7 @@ const UserCard = ({user, currentUserInterest, handleClick, anchorEl, handleClose
                                 variant="contained"
                                 tabIndex={-1}
                                 startIcon={<ChatIcon/>}
+                                onClick={handleMensajeButton}
                             >
                                 Mensaje
                             </Button>

@@ -18,6 +18,7 @@
 
 /* Para Firefox */
 .scrollable {
+    list-style-type: none;
     scrollbar-width: thin; /* Estilo de la barra de desplazamiento (delgada) */
     scrollbar-color: #888 #f1f1f1; /* Color del "pulgar" y del fondo */
 }

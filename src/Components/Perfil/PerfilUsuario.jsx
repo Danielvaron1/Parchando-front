@@ -21,12 +21,12 @@ import {
 } from "@mui/material";
 import {useUserContext} from "../../Context/UserContext";
 import {Bounce, toast} from "react-toastify";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
     acceptAmigos,
-    createAmigos,
+    createAmigos, createConversacion,
     createNotificacion,
-    deleteAmigos,
+    deleteAmigos, getConversacion,
     getUserAmigo,
     getUsersParams
 } from "../../Api/UsuariosApi";
@@ -39,6 +39,7 @@ const PerfilUsuario = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const userId = queryParams.get("id");
+    const navigate = useNavigate();
     const [user, setUser] = useState({
         id: "",
         nombre: '',
@@ -236,6 +237,15 @@ const PerfilUsuario = () => {
             }).catch(e => console.log(e));
     }
 
+    async function handleMensajeButton() {
+
+        let conversacion = await getConversacion({usuario2: userData.id, usuario1: user.id}, token);
+        if(!conversacion){
+            conversacion = await createConversacion({usuario1: userData.id, usuario2: user.id}, token);
+        }
+        navigate(`/Chat/${conversacion.id}`);
+    }
+
     return (
         <Stack>
             <Stack direction={{sm: "row"}} sx={{
@@ -309,6 +319,7 @@ const PerfilUsuario = () => {
                                     variant="contained"
                                     tabIndex={-1}
                                     startIcon={<ChatIcon/>}
+                                    onClick={handleMensajeButton}
                                 >
                                     Mensaje
                                 </Button>

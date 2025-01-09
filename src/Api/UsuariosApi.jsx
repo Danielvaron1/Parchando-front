@@ -1,6 +1,7 @@
 const usersPath="Usuarios";
 const notifPath="Notificaciones";
 const amigPath="Amigos";
+const convPath="Conversaciones"
 const usersURL = process.env.REACT_APP_USER_API;
 
 //USUARIOS
@@ -347,6 +348,118 @@ async function deleteNotificaciones( id,token){
     }
 }
 
+
+//CONVERSACIONES
+
+async function getConversaciones(usuario1,token){
+    try{
+        const data = await fetch(`${usersURL}${convPath}/${usuario1}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+        return await data.json();
+    } catch(error){
+        console.log(error);
+    }
+}
+
+async function getConversacion({usuario1,usuario2},token){
+    try{
+        const params = new URLSearchParams();
+
+        params.append('usuario1', usuario1);
+        params.append('usuario2', usuario2);
+
+        const data = await fetch(`${usersURL}${convPath}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+        return await data.json();
+    } catch(error){
+        console.log(error);
+    }
+}
+
+async function getConversacionId({id},token){
+    try{
+
+        const data = await fetch(`${usersURL}${convPath}/conversacion/${id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+        return await data.json();
+    } catch(error){
+        console.log(error);
+    }
+}
+
+async function createConversacion({usuario1,usuario2},token){
+    try {
+
+        const params = new URLSearchParams();
+
+        params.append('usuario1', usuario1);
+        params.append('usuario2', usuario2);
+        params.append('nombre', usuario1+"-"+usuario2);
+
+        const data = await fetch(`${usersURL}${convPath}?${params.toString()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        return await data.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+async function updateConversacion({usuario1,mensaje},token){
+    try {
+
+        const data = await fetch(`${usersURL}${convPath}/${usuario1}?ultimoMensaje=${mensaje}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!data.ok) {
+            throw new Error('Error en la solicitud: ' + data.statusText);
+        }
+
+        return await data.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
 export {
     getUsers,
     getUsersParams,
@@ -364,5 +477,12 @@ export {
     getNotificaciones,
     readNotificaciones,
     createNotificacion,
-    deleteNotificaciones
+    deleteNotificaciones,
+
+    getConversaciones,
+    getConversacion,
+    getConversacionId,
+    createConversacion,
+    updateConversacion,
+
 }

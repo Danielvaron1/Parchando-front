@@ -1,4 +1,4 @@
-import { Divider, Paper, Stack, TextField} from "@mui/material";
+import {Divider, Paper, Stack, TextField} from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import * as React from 'react';
 import {deepPurple} from "@mui/material/colors";
@@ -8,25 +8,67 @@ import './Chat.css';
 import {useUserContext} from "../../Context/UserContext";
 import IconButton from "@mui/material/IconButton";
 import SendIcon from '@mui/icons-material/Send';
-const Chat = () => {
-    const {userData} = useUserContext();
-    const [messages, setMessages] = React.useState([
-        {id: 1, text: "Hola, ¿cómo estás?", user: {name: "DUser 1", avatar: "https://example.com/avatar1.jpg"}},
-        {
-            id: 2,
-            text: "Lorem ipsum es el texto que se usa habitualmente en diseño gráfico en demostraciones de tipografías o de borradores de diseño para probar el diseño visual antes de insertar el texto final.\nAunque no posee actualmente fuentes para justificar sus hipótesis, el profesor de filología clásica Richard McClintock asegura que su uso se remonta a los impresores de comienzos del siglo XVI.1​ Su uso en algunos editores de texto muy conocidos en la actualidad ha dado al texto lorem ipsum nueva popularidad.",
-            user: {name: "da", avatar: "https://example.com/avatar2.jpg"}
-        },
+import {io} from "socket.io-client";
+import {Link, useNavigate, useParams} from "react-router-dom";
+import {useEffect} from "react";
+import {getConversacionId} from "../../Api/UsuariosApi";
+import CircularProgress from '@mui/material/CircularProgress';
 
-    ]);
+const Chat = () => {
+    const {id} = useParams();
+    const {userData, token} = useUserContext();
+    const [messages, setMessages] = React.useState([]);
     const [inputValue, setInputValue] = React.useState("");
     const messagesEndRef = React.useRef(null);
+    const [conversacion, setConversacion] = React.useState(null);
+    const socketRef = React.useRef(null);
+    const [loading, setLoading] = React.useState(true);
+    const navigate = useNavigate();
+    const urlApi = process.env.REACT_APP_MESSAGE_API;
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({behavior: "smooth"});
         }
     };
+
+
+    useEffect(() => {
+        socketRef.current = io.connect(urlApi);
+
+        const initChat = async () => {
+            const conversacionFetch = await getConversacionId({id: id}, token);
+            setConversacion(conversacionFetch);
+            socketRef.current.emit("join_room", conversacionFetch.nombre);
+            socketRef.current.emit("get_messages", conversacionFetch.nombre);
+        };
+
+        initChat();
+
+        socketRef.current.on("receive_message", (data) => {
+            setMessages((prevMessages) => [...prevMessages, data]);
+        });
+
+        socketRef.current.on("load_messages", (loadedMessages) => {
+            setMessages(loadedMessages);
+        });
+
+        setLoading(false);
+
+        return () => {
+            socketRef.current.off("receive_message");
+            socketRef.current.off("load_messages");
+            socketRef.current.disconnect();
+        };
+    }, [id, token]);
+
+    useEffect(() => {
+        if (conversacion && userData) {
+            if (userData.id !== conversacion.usuario1.id && userData.id !== conversacion.usuario2.id) {
+                navigate("/");
+            }
+        }
+    }, [conversacion, userData, navigate]);
 
     React.useEffect(() => {
         scrollToBottom();
@@ -35,11 +77,12 @@ const Chat = () => {
     const handleSendMessage = () => {
         if (inputValue.trim() !== "") {
             const newMessage = {
-                id: messages.length + 1,
-                text: inputValue,
-                user: {name: "You", avatar: "https://example.com/your-avatar.jpg"}
+                mensaje: inputValue,
+                room: conversacion.nombre,
+                de: userData.id,
+                hora: new Date(Date.now()),
             };
-            setMessages([...messages, newMessage]);
+            socketRef.current.emit("send_message", newMessage);
             setInputValue("");
         }
     };
@@ -57,78 +100,94 @@ const Chat = () => {
 
     return (
         <Stack sx={{pb: 7, height: "100%", display: "flex", flexDirection: "column"}}>
-            <Stack sx={{backgroundColor: deepPurple[500], padding: 1, justifyContent:"center" ,alignItems:"center",display: 'flex', flexDirection:"row" }} position="static">
-                    <Avatar
-                        sx={{bgcolor: deepPurple[400], width: 30, height: 30, marginRight:1}}
-                        alt={userData.nombre}
-                        src={userData.fotos}
-                    >
-                        {userData.nombre.charAt(0)}
-                    </Avatar>
-                <Typography variant="subtitle1" sx={{
-                    color: 'white'
-                }}>Chat</Typography>
-            </Stack>
-            <div className="scrollable" style={{flexGrow: 1, overflowY: "auto", padding: 16, height: "75vh"}}>
-                {messages.map((message) => (
-                    <Card key={message.id} sx={{
-                        marginBottom: 1,
+            {loading || conversacion===null? (
+                <CircularProgress color="secondary"/>
+            ) : (<Stack>
+                    <Stack sx={{
+                        backgroundColor: deepPurple[500],
+                        padding: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
                         display: 'flex',
-                        flexDirection: userData.nombre === message.user.name ? 'row' : 'row-reverse'
-                    }}>
-                        <Stack sx={{
-                            flexGrow: 1,
-                            textAlign: userData.nombre === message.user.name ? 'right' : 'left',
-                            padding: 1
-                        }}>
-                            <Typography variant="body2" color={"textPrimary"}>
-                                {message.text.split('\n').map((line, index ) => (
-                                <React.Fragment key={index}>
-                                    {line}
-                                    {index < message.text.split('\n').length - 1 && <br />}
-                                </React.Fragment>
-                                ))}
-                            </Typography>
-                            <Typography variant="caption"
-                                        color="textSecondary">{new Date().toLocaleString()}</Typography>
-                        </Stack>
-                        <Avatar alt={message.user.name} sx={{
-                            bgcolor: deepPurple[400],
-                            marginLeft: userData.nombre === message.user.name ? 0 : 1,
-                            marginRight: userData.nombre === message.user.name ? 1 : 0,
-                            marginTop: 1
-                        }} src={message.user.avatar}>
-                            {message.user.name.charAt(0).toUpperCase()}
+                        flexDirection: "row"
+                    }} position="static" component={Link} to={`/Perfil?id=${conversacion.usuario2.id}`}>
+                        <Avatar
+                            sx={{bgcolor: deepPurple[400], width: 30, height: 30, marginRight: 1}}
+                            alt={conversacion.usuario2.nombre}
+                            src={conversacion.usuario2.fotos}
+                        >
+                            {conversacion.usuario2.nombre.charAt(0)}
                         </Avatar>
-
-                    </Card>
-                ))}
-                <div ref={messagesEndRef}/>
-            </div>
-            <Divider/>
-            <Paper sx={{position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={3}>
-                <Stack direction="row" spacing={1} sx={{padding: 1}}>
-                    <TextField
-                        variant="outlined"
-                        fullWidth
-                        value={inputValue}
-                        multiline
-                        size="small"
-                        maxRows={2}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Escribe un mensaje..."
-                    />
-                    <IconButton
-                        size="medium"
-                        aria-label="show 17 new notifications"
-                        onClick={handleSendMessage}
-                    >
-                            <SendIcon sx={{ color: deepPurple[400] }}/>
-                    </IconButton>
+                        <Typography variant="subtitle1" sx={{
+                            color: 'white'
+                        }}>{conversacion.usuario2.nombre}</Typography>
+                    </Stack>
+                    <div className="scrollable" style={{flexGrow: 1, overflowY: "auto", padding: 16, height: "75vh"}}>
+                        {messages.length === 0 ? (
+                            <Typography variant="body1" color="textSecondary" align="center" sx={{ marginTop: 2 }}>
+                                No hay mensajes en esta conversación.
+                            </Typography>
+                        ) : (
+                            messages.map((message) => (
+                                <Card key={message.id} sx={{
+                                    marginBottom: 1,
+                                    display: 'flex',
+                                    flexDirection: userData.id === message.de ? 'row' : 'row-reverse'
+                                }}>
+                                    <Stack sx={{
+                                        flexGrow: 1,
+                                        textAlign: userData.id === message.de ? 'right' : 'left',
+                                        padding: 1
+                                    }}>
+                                        <Typography variant="body2" color={"textPrimary"}>
+                                            {message.mensaje.split('\n').map((line, index) => (
+                                                <React.Fragment key={index}>
+                                                    {line}
+                                                    {index < message.mensaje.split('\n').length - 1 && <br />}
+                                                </React.Fragment>
+                                            ))}
+                                        </Typography>
+                                        <Typography variant="caption"
+                                                    color="textSecondary">{new Date().toLocaleString()}</Typography>
+                                    </Stack>
+                                    <Avatar alt={message.de} sx={{
+                                        bgcolor: deepPurple[400],
+                                        marginLeft: userData.id === message.de ? 0 : 1,
+                                        marginRight: userData.id === message.de ? 1 : 0,
+                                        marginTop: 1
+                                    }} src={userData.id === message.de ? conversacion.usuario1.fotos : conversacion.usuario2.fotos}>
+                                        {userData.id === message.de ? conversacion.usuario1.nombre.charAt(0) : conversacion.usuario2.nombre.charAt(0)}
+                                    </Avatar>
+                                </Card>
+                            ))
+                        )}
+                        <div ref={messagesEndRef}/>
+                    </div>
+                    <Divider/>
+                    <Paper sx={{position: 'fixed', bottom: 0, left: 0, right: 0}} elevation={3}>
+                        <Stack direction="row" spacing={1} sx={{padding: 1}}>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                value={inputValue}
+                                multiline
+                                size="small"
+                                maxRows={2}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Escribe un mensaje..."
+                            />
+                            <IconButton
+                                size="medium"
+                                aria-label="show 17 new notifications"
+                                onClick={handleSendMessage}
+                            >
+                                <SendIcon sx={{color: deepPurple[400]}}/>
+                            </IconButton>
+                        </Stack>
+                    </Paper>
                 </Stack>
-            </Paper>
-
+            )}
         </Stack>
     );
 }
