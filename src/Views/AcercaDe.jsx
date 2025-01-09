@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import * as React from "react";
 import {deepPurple} from "@mui/material/colors";
 import {Link} from "react-router-dom";
+import {useUserContext} from "../Context/UserContext";
 
 const itemData = [
     {
@@ -63,6 +64,7 @@ const itemData2 = [
 
 
 export const AcercaDe = () => {
+    const {userData} = useUserContext();
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -117,7 +119,7 @@ export const AcercaDe = () => {
                 <Typography variant={isSmallScreen ? "h5" : "subtitle1"}>
                     Así que arriésgate y simplemente di:
                 </Typography>
-                <Button to={"/auth"} component={Link} variant="contained" sx={{ textTransform: "none" , marginTop:1, background:deepPurple[400]}}>
+                <Button to={userData.id === "" ? "/auth" : "/Eventos"} component={Link} variant="contained" sx={{ textTransform: "none" , marginTop:1, background:deepPurple[400]}}>
                     <Typography variant="h4" component="span" sx={{fontFamily: '"Comforter Brush", cursive'}}>
                         ¿Parchamos?
                     </Typography>

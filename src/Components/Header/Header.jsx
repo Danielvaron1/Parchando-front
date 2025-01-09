@@ -286,7 +286,7 @@ const Header = () => {
         { text: "Eventos", icon: <CalendarMonthIcon />, to: "/Eventos" },
         { text: "Mis Eventos", icon: <EventAvailableIcon />, to: "/Mis Eventos" },
         { text: "Acerca De", icon: <InfoIcon />, to: "/Acerca De" },
-        { text: "Mi Perfil", icon: <PersonIcon />, to: "/PerfilUpdate" },
+        { text: "Mi Perfil", icon: <PersonIcon />, to: `/Perfil?id=${userData.id}` },
         { text: "Perfil", icon: <Settings />, to: "/PerfilUpdate" },
         { text: "Amigos", icon: <People />, to: "/Amigos" },
         { text: "Mensajes", icon: <MailIcon />, to: "/Mensajes" },
