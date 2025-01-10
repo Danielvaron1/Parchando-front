@@ -94,10 +94,10 @@ export const LandingPage = () => {
                 <Grid size={{xs: 11, md: 6}}>
                     <Stack>
                         <Typography variant="h3" sx={{
-                            fontSize: {xs: '1.5rem', sm: '2rem'} // Cambia el tamaño de la fuente según el breakpoint
+                            fontSize: {xs: '1.5rem', sm: '2rem'}
                         }}>La plataforma de las personas:</Typography>
                         <Typography variant="h3" sx={{
-                            fontSize: {xs: '1.5rem', sm: '2rem'} // Cambia el tamaño de la fuente según el breakpoint
+                            fontSize: {xs: '1.5rem', sm: '2rem'}
                         }}>donde los intereses se convierten en parches</Typography>
                         <Typography variant="body1" color={"textSecondary"}>
                             Sea cual sea su interés, desde senderismo y lectura hasta networking y compartir

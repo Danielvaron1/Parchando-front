@@ -453,8 +453,6 @@ async function updateConversacion({id,mensaje},token){
         if (!data.ok) {
             throw new Error('Error en la solicitud: ' + data.statusText);
         }
-
-        return await data.json();
     } catch (error) {
         throw error;
     }
